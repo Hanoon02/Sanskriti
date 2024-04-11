@@ -144,10 +144,13 @@ def extract_features(image_path, model):
 # Function to predict the cluster for a new image using extracted features
 def predict_cluster(image_path, feature_model, kmeans_model, scaler):
     features = extract_features(image_path, feature_model)
-    features = scaler.transform([features.reshape(1, -1)])  # Reshape for single sample
-    features = np.array(features, dtype=np.float64)  # Ensure dtype float64
-    cluster = kmeans_model.predict(features)
+    # Ensure features are reshaped to a 2D array. The reshape to (1, -1) should already do this,
+    # but it's critical to confirm there's no additional unintended dimension.
+    features = features.reshape(1, -1)  # This ensures a 2D array shape
+    features_scaled = scaler.transform(features)  # Scale features
+    cluster = kmeans_model.predict(features_scaled)  # Predict cluster
     return cluster[0]
+
 
 # Example usage
 image_path = input("Enter the path to the image: ")
