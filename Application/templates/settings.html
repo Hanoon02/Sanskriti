@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+</head>
+<body class='px-3'>
+    <h1>Settings</h1>
+    <button onclick="cleanImages()">Clean Images</button>
+    <script>
+        function cleanImages() {
+            fetch('/clean_image', {
+                method: 'GET'
+            })
+            .then(response => response.text())
+            .then(data => alert(data))
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>
