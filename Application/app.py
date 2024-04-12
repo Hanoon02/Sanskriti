@@ -3,7 +3,7 @@ import os
 import pickle
 from time import time
 from text import BertModelText
-from image import MonumentImage
+from image import ImageData
 
 app = Flask(__name__)
 
@@ -24,16 +24,16 @@ def index():
 def predict():
     input_data = request.form['input_data']
     language = request.form.get('language', 'english')
-    bertModelText = BertModelText(input_data)
-    output = bertModelText.compute()
+    # bertModelText = BertModelText(input_data)
+    # output = bertModelText.compute()
     image_file = request.files['image_input']
     unique_filename = f"{int(time())}.jpg" 
     image_path = os.path.join(app.config['SAVE_FOLDER'], unique_filename)
     image_file.save(image_path)
-    monumentImage = MonumentImage(image_path)
-    output_image = monumentImage.compute()
+    imgData = ImageData()
+    output_image = imgData.get_class(image_path)
     fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename)
-    return render_template('result.html', question= input_data, output=output, image_path=fetch_path, language = language, image_class = output_image)
+    return render_template('result.html', question= input_data, output='', image_path=fetch_path, language = language, image_class = output_image)
 
 @app.route('/clean_image')
 def clean_image():

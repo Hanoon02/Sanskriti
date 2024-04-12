@@ -1,54 +1,63 @@
-import pickle
-import numpy as np
-from PIL import Image
-from transformers import BeitForImageClassification, BeitFeatureExtractor
 import torch
-from torchvision.transforms import Compose, Resize, ToTensor, Normalize
-import requests
-from io import BytesIO
+import torch.nn as nn
+import torchvision.transforms as transforms
+from torchvision.datasets import ImageFolder
+from PIL import Image
+from torchvision.models import resnet18
 
-class MonumentImage:
-    def __init__(self, image_path):
-        self.image_path = image_path
-        self.model_path = 'models/fine_tuned_model'
-        self.class_names = ["Ajanta Caves", "Charar-E- Sharif", "Chhota Imambara", "Ellora Caves", "Fatehpur Sikiri",
-                            "Hawa Mahal", "Gateway of India", "Khajuraho", "Sun Temple Konark", "Alai Darwaza",
-                            "Alai Minar", "Basilica of Bom Jesus", "Charminar", "Golden Temple", "Iron Pillar",
-                            "Jamali Kamali Tomb", "Lotus Temple", "Mysore Palace", "Qutub Minar", "Taj Mahal",
-                            "Tanjavur Temple", "Victoria Memorial"]
+class HierarchicalResNet(nn.Module):
+    def __init__(self, num_classes):
+        super(HierarchicalResNet, self).__init__()
+        self.resnet = resnet18(pretrained=True)
+        for param in self.resnet.parameters():
+            param.requires_grad = False
+        num_ftrs = self.resnet.fc.in_features
+        self.resnet.fc = nn.Identity()
+        self.fc_class = nn.Linear(num_ftrs, num_classes) 
         
-    def predict_image_class(self, image_input):
-        model_path = self.model_path
-        model = BeitForImageClassification.from_pretrained(model_path)
-        feature_extractor = BeitFeatureExtractor.from_pretrained('microsoft/beit-base-patch16-224')
-        model.eval()
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        model.to(device)
-        if image_input.startswith('http'):
-            response = requests.get(image_input)
-            image = Image.open(BytesIO(response.content)).convert("RGB")
-        else:
-            image = Image.open(image_input).convert("RGB")
-        transform = Compose([
-            Resize((224, 224)),
-            ToTensor(),
-            Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+    def forward(self, x):
+        features = self.resnet(x)
+        class_output = self.fc_class(features)
+        return class_output
+class CustomResNet(nn.Module):
+    def __init__(self, num_classes):
+        super(CustomResNet, self).__init__()
+        self.resnet = resnet18(pretrained=True)
+        for param in self.resnet.parameters():
+            param.requires_grad = False
+        num_ftrs = self.resnet.fc.in_features
+        self.resnet.fc = nn.Linear(num_ftrs, num_classes)
+
+    def forward(self, x):
+        return self.resnet(x)
+class ImageData:
+    def __init__(self):
+        self.hierarchical_model = HierarchicalResNet(3)  
+        self.hierarchical_model.load_state_dict(torch.load('models/HierarchicalClassificationModel.pth'))
+        self.hierarchical_model.eval()
+        self.hierarchical_class_names = ['Dance', 'Monuments', 'Paintings']
+        
+    def get_class(self, image_path):
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),  
+            transforms.ToTensor(),
         ])
-        image = transform(image).unsqueeze(0) 
-        image = image.to(device)
+        train_dataset = ImageFolder(root='../Image Data/Paintings/training', transform=transform)
+        class_names = train_dataset.classes
+        painting_model = CustomResNet(len(class_names))  
+        painting_model.load_state_dict(torch.load('models/Painting.pth'))
+        painting_model.eval()
+        image = Image.open(image_path)
+        image = transform(image).unsqueeze(0)  
         with torch.no_grad():
-            outputs = model(image)
-            preds = outputs.logits.softmax(dim=-1)
-            predicted_index = preds.argmax(1).item()
-        if predicted_index < len(self.class_names):
-            predicted_class = self.class_names[predicted_index]
+            output = self.hierarchical_model(image)
+        _, predicted = torch.max(output, 1)
+        hierarchical_predicted_label = self.hierarchical_class_names[predicted.item()]
+        if hierarchical_predicted_label == "Paintings":
+            painting_output = painting_model(image)
+            _, painting_predicted = torch.max(painting_output, 1)
+            painting_predicted_class = class_names[painting_predicted.item()]
+            return painting_predicted_class
         else:
-            predicted_class = "Unknown Class"
-        return f"Predicted class for the image: {predicted_class}"
-        
-    def compute(self):
-        try:
-            class_pred = self.predict_image_class(self.image_path)
-        except Exception as e:
-            return f"Error: {str(e)}"
-        return class_pred
+            return hierarchical_predicted_label
+    
