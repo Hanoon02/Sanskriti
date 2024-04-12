@@ -1,4 +1,4 @@
-class ImageToImageEvaluation:
+class ImageLabelEvaluation:
     def __init__(self, model):
         self.model = model
         self.testing_dictionary = {
