@@ -1,9 +1,19 @@
 import torch
 import torch.nn as nn
+import pandas as pd
 import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from PIL import Image
 from torchvision.models import resnet18
+import numpy as np
+from tensorflow.keras.preprocessing.image import load_img, img_to_array
+from tensorflow.keras.applications import InceptionV3
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import GlobalAveragePooling2D
+import joblib
+from sklearn.metrics.pairwise import cosine_similarity
+import matplotlib.pyplot as plt
+from PIL import Image
 
 class HierarchicalResNet(nn.Module):
     def __init__(self, num_classes):
@@ -36,6 +46,8 @@ class ImageData:
         self.hierarchical_model.load_state_dict(torch.load('models/HierarchicalClassificationModel.pth'))
         self.hierarchical_model.eval()
         self.hierarchical_class_names = ['Dance', 'Monuments', 'Paintings']
+        self.kmeans_model_path = 'models/clusters/Warli.pkl'
+        self.kmeans_model = joblib.load(self.kmeans_model_path)
         
     def get_class(self, image_path):
         transform = transforms.Compose([
@@ -60,4 +72,35 @@ class ImageData:
             return painting_predicted_class
         else:
             return hierarchical_predicted_label
+        
+    def preprocess_image(self, image_path, target_size=(299, 299)):
+        image = load_img(image_path, target_size=target_size)
+        image = img_to_array(image)
+        image = np.expand_dims(image, axis=0)
+        return image
     
+    def calculate_similarity(self, image_path1, image_path2):
+        img1 = Image.open(image_path1).convert('RGB').resize((299, 299))
+        img2 = Image.open(image_path2).convert('RGB').resize((299, 299))
+        img1_array = np.array(img1).reshape(1, -1)
+        img2_array = np.array(img2).reshape(1, -1)
+        similarity = cosine_similarity(img1_array, img2_array)
+        return similarity[0][0]
+        
+    def get_similiar_images(self, image_path):
+        pretrained_model = InceptionV3(weights=None, include_top=False)
+        x = pretrained_model.output
+        x = GlobalAveragePooling2D()(x)
+        model = Model(inputs=pretrained_model.input, outputs=x)
+        image = self.preprocess_image(image_path)
+        image_features = model.predict(image)
+        cluster_label = self.kmeans_model.predict(image_features)
+        csv_path = 'data/cluster/Warli.csv'
+        df = pd.read_csv(csv_path)
+        relevant_paths = df[df['Cluster_Label'] == cluster_label[0]]['Image_Path']
+        similarities = {}
+        for path in relevant_paths:
+            similarity = self.calculate_similarity(image_path, path)
+            similarities[path] = similarity
+        top_3_paths = sorted(similarities, key=lambda x: similarities[x], reverse=True)[:3]
+        return top_3_paths

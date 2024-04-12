@@ -15,16 +15,34 @@
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-2">Question:</h2>
             <p class="text-lg">{{ question }}</p>
+        </div>
+        {% if image_path %}
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2">Uploaded Image:</h2>
             <div>
                 <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" class="mt-4">
             </div>
         </div>
+        {% endif %}
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-2">Answer:</h2>
             <p class="text-lg">{{ output }}</p>
-            <p class="text-lg">{{ image_class }}</p>
+            {% if image_class %}
+            <p class="text-lg">The image you provided is {{ image_class }}</p>
+            {% endif %}
         </div>
-
+        {% if similar_images %}
+        <div class="mb-4">
+            <h2 class="text-lg font-semibold mb-2">Similar Images:</h2>
+            <div class="flex justify-center items-center gap-4">
+                {% for similar_image in similar_images %}
+                    <div>
+                        <img src="{{ url_for('static', filename=similar_image) }}" alt="Similar Image" class="mt-4">
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>

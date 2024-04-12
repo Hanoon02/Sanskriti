@@ -4,6 +4,7 @@ import pickle
 from time import time
 from text import BertModelText
 from image import ImageData
+from shutil import copyfile
 
 app = Flask(__name__)
 
@@ -24,21 +25,41 @@ def index():
 def predict():
     input_data = request.form['input_data']
     language = request.form.get('language', 'english')
-    # bertModelText = BertModelText(input_data)
-    # output = bertModelText.compute()
-    image_file = request.files['image_input']
-    unique_filename = f"{int(time())}.jpg" 
-    image_path = os.path.join(app.config['SAVE_FOLDER'], unique_filename)
-    image_file.save(image_path)
-    imgData = ImageData()
-    output_image = imgData.get_class(image_path)
-    fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename)
-    return render_template('result.html', question= input_data, output='', image_path=fetch_path, language = language, image_class = output_image)
+    try:
+        image_file = request.files['image_input']
+    except:
+        image_file = None
+    if image_file is None:  
+        image_path = None
+        output_image = ""
+        similar_image_paths = []
+    else:
+        unique_filename = f"{int(time())}.jpg" 
+        image_path = os.path.join(app.config['SAVE_FOLDER'], unique_filename)
+        image_file.save(image_path)
+        imgData = ImageData()
+        output_image = imgData.get_class(image_path)
+        similar_images = imgData.get_similiar_images(image_path)
+        similar_image_paths = []
+        for similar_image_path in similar_images:
+            filename = f"{int(time())}_{os.path.basename(similar_image_path)}"
+            output_image_path = os.path.join('static', 'image_outputs', filename)
+            copyfile(similar_image_path, output_image_path)
+            similar_image_paths.append(os.path.join('image_outputs', filename))
+    
+    fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename) if image_path else None
+    return render_template('result.html', question=input_data, output='', image_path=fetch_path, language=language, image_class=output_image, similar_images=similar_image_paths)
+
 
 @app.route('/clean_image')
 def clean_image():
     try:
         upload_folder = app.config['SAVE_FOLDER']
+        for filename in os.listdir(upload_folder):
+            file_path = os.path.join(upload_folder, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        upload_folder = 'static/image_outputs'
         for filename in os.listdir(upload_folder):
             file_path = os.path.join(upload_folder, filename)
             if os.path.isfile(file_path):
