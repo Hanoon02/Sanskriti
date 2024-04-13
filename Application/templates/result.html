@@ -27,8 +27,18 @@
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-2">Answer:</h2>
             <p class="text-lg">{{ output }}</p>
+            {% if pred_class %}
+                <pclass="text-lg"> You are looking for a {{pred_class}}, which is {{pred_label}} </p>
+                <div class="flex justify-center items-center gap-4">
+                    {% for search_image in search_images %}
+                        <div>
+                            <img src="{{ url_for('static', filename=search_image) }}" alt="Search Image" class="mt-4">
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
             {% if image_class %}
-            <p class="text-lg">The image you provided is {{ image_class }}</p>
+                <p class="text-lg">The image you provided is {{ image_class }}</p>
             {% endif %}
         </div>
         {% if similar_images %}
