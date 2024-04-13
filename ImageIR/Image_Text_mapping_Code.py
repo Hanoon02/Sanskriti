@@ -2,8 +2,8 @@ import os
 import pandas as pd
 import csv
 
-DIRECTORY_PATH = '../Image Data/Image_clustering_CSV/Dance'  # Directory containing the CSV files
-output_csv_path = '../Application/data/image_text_mapping.csv'  # Output CSV file path
+DIRECTORY_PATH = '../Image Data/Image_clustering_CSV/Dance'  
+output_csv_path = '../Application/data/image_text_mapping.csv'  
 
 
 
@@ -53,10 +53,8 @@ keyterms = {
 }
 
 
-# Check if the output file exists to decide whether to write headers
 file_exists = os.path.isfile(output_csv_path)
 
-# Process each file in the directory
 for filename in os.listdir(DIRECTORY_PATH):
     if filename.endswith('.csv'):
         csv_path = os.path.join(DIRECTORY_PATH, filename)
@@ -64,26 +62,22 @@ for filename in os.listdir(DIRECTORY_PATH):
         unique_clusters = data['Cluster_Label'].unique()
 
         output_rows = []
-        Class = 'Dance'  # Example class name for all entries
+        Class = 'Dance'  
 
         for cluster in unique_clusters:
             cluster_data = data[data['Cluster_Label'] == cluster]
             if not cluster_data.empty:
                 label = cluster_data.iloc[0]['Image_Path'].split('/')[-2]
                 if label in keyterms:
-                    keywords = str(keyterms[label])  # Convert list to string representation
+                    keywords = str(keyterms[label]) 
                     output_rows.append([Class, label, cluster, keywords])
 
-        # Open the output CSV file in append mode or write mode depending on file existence
         with open(output_csv_path, mode='a' if file_exists else 'w', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
-            # Write header if file does not exist
             if not file_exists:
                 writer.writerow(['Class', 'Label', 'Cluster', 'Key_Words'])
-                file_exists = True  # Ensure header is not written again
-            # Append each row
+                file_exists = True  
             for row in output_rows:
                 writer.writerow(row)
 
-# Print status
 print("All files have been processed and results appended to:", output_csv_path)
