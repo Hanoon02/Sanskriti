@@ -62,8 +62,6 @@ class ImageInputData:
         self.hierarchical_model.load_state_dict(torch.load('models/HierarchicalClassificationModel.pth'))
         self.hierarchical_model.eval()
         self.hierarchical_class_names = ['Dance', 'Monuments', 'Paintings']
-        self.kmeans_model_path = 'models/clusters/Warli.pkl'
-        self.kmeans_model = joblib.load(self.kmeans_model_path)
         
     def get_class(self, image_path):
         transform = transforms.Compose([
@@ -120,8 +118,14 @@ class ImageInputData:
         img2_array = np.array(img2).reshape(1, -1)
         similarity = cosine_similarity(img1_array, img2_array)
         return similarity[0][0]
+    
+    def fetch_cluster_model(self, label):
+        path = 'models/clusters/'+label+'.pkl'
+        return joblib.load(path)
         
-    def get_similiar_images(self, image_path):
+    def get_similiar_images(self, image_path, label):
+        self.kmeans_model_path = 'models/clusters/Warli.pkl'
+        self.kmeans_model = self.fetch_cluster_model(label)
         pretrained_model = InceptionV3(weights=None, include_top=False)
         x = pretrained_model.output
         x = GlobalAveragePooling2D()(x)
@@ -129,7 +133,7 @@ class ImageInputData:
         image = self.preprocess_image(image_path)
         image_features = model.predict(image)
         cluster_label = self.kmeans_model.predict(image_features)
-        csv_path = 'data/cluster/Warli.csv'
+        csv_path = 'data/cluster/'+label+'.csv'
         df = pd.read_csv(csv_path)
         relevant_paths = df[df['Cluster_Label'] == cluster_label[0]]['Image_Path']
         similarities = {}

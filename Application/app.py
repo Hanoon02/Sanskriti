@@ -52,7 +52,7 @@ def predict():
         image_file.save(image_path)
         imgData = ImageInputData()
         output_image = imgData.get_class(image_path)
-        similar_images = imgData.get_similiar_images(image_path)
+        similar_images = imgData.get_similiar_images(image_path, output_image)
         similar_image_paths = []
         for similar_image_path in similar_images:
             filename = f"{int(time())}_{os.path.basename(similar_image_path)}"
