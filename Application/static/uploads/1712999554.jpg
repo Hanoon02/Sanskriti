@@ -39,6 +39,6 @@
         </div>
         <a href="/settings" class="mt-4 block text-indigo-600 hover:text-indigo-800">Go to Settings</a>
     </div>
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <script src="/static/index.js"></script>
 </body>
 </html>

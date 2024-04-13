@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import os
-import pickle
 from time import time
 from text import BertModelText
 from image import ImageData
 from shutil import copyfile
+import requests
 
 app = Flask(__name__)
 
@@ -71,6 +71,26 @@ def clean_image():
 @app.route('/settings')
 def settings():
     return render_template('settings.html')
+
+@app.route('/download-image', methods=['POST'])
+def download_image():
+    data = request.get_json()
+    image_url = data.get('imageUrl')
+    if not image_url:
+        return jsonify({'error': 'Image URL not provided'}), 400
+    try:
+        response = requests.get(image_url)
+        if response.status_code != 200:
+            return jsonify({'error': 'Failed to download image'}), 500
+        download_dir = 'static/downloads'
+        if not os.path.exists(download_dir):
+            os.makedirs(download_dir)
+        image_path = os.path.join(download_dir, 'downloaded_image.jpg')
+        with open(image_path, 'wb') as f:
+            f.write(response.content)
+        return jsonify({'message': 'Image downloaded successfully', 'imagePath': image_path}), 200
+    except Exception as e:
+        return jsonify({'error': f'Error downloading image: {str(e)}'}), 500
 
 app.config['SAVE_FOLDER'] = 'static/uploads'
 app.config['FETCH_FOLDER'] = 'uploads'
