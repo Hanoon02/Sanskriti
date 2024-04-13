@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 import os
 from time import time
-from text import BertModelText
-from image import ImageData
+from helper_code import ImageInputData, Chatbot, TextToImage
 from shutil import copyfile
 import requests
+
+chatbot = Chatbot()
 
 app = Flask(__name__)
 
@@ -24,6 +25,18 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     input_data = request.form['input_data']
+    img_class = None
+    img_label = None
+    search_image_paths = []
+    if chatbot.contains_image_keywords(input_data):
+        textToImage = TextToImage()
+        img_class, img_label = textToImage.find_most_relevant_label(input_data)
+        paths = textToImage.fetch_img(img_class, img_label)
+        for path in paths:
+            filename = f"{int(time())}_{os.path.basename(path)}"
+            output_image_path = os.path.join('static', 'image_outputs', filename)
+            copyfile(path, output_image_path)
+            search_image_paths.append(os.path.join('image_outputs', filename))
     language = request.form.get('language', 'english')
     try:
         image_file = request.files['image_input']
@@ -37,7 +50,7 @@ def predict():
         unique_filename = f"{int(time())}.jpg" 
         image_path = os.path.join(app.config['SAVE_FOLDER'], unique_filename)
         image_file.save(image_path)
-        imgData = ImageData()
+        imgData = ImageInputData()
         output_image = imgData.get_class(image_path)
         similar_images = imgData.get_similiar_images(image_path)
         similar_image_paths = []
@@ -48,7 +61,7 @@ def predict():
             similar_image_paths.append(os.path.join('image_outputs', filename))
     
     fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename) if image_path else None
-    return render_template('result.html', question=input_data, output='', image_path=fetch_path, language=language, image_class=output_image, similar_images=similar_image_paths)
+    return render_template('result.html', question=input_data, output='', image_path=fetch_path, language=language, image_class=output_image, similar_images=similar_image_paths, pred_class = img_class, pred_label = img_label, search_images = search_image_paths)
 
 
 @app.route('/clean_image')
