@@ -46,7 +46,62 @@ class ImageEvaluation:
         plt.tight_layout()
         plt.show()
 
+'''
+class ImageInputData:
+    def __init__(self):
+        self.hierarchical_model = HierarchicalResNet(3)  
+        self.hierarchical_model.load_state_dict(torch.load('models/HierarchicalClassificationModel.pth'))
+        self.hierarchical_model.eval()
+        self.hierarchical_class_names = ['Dance', 'Monuments', 'Paintings']
+        
+    def get_class(self, image_path):
+        transform = transforms.Compose([
+            transforms.Resize((224, 224)),  
+            transforms.ToTensor(),
+        ])
+        image = Image.open(image_path)
+        image = transform(image).unsqueeze(0)  
+        with torch.no_grad():
+            output = self.hierarchical_model(image)
+        _, predicted = torch.max(output, 1)
+        hierarchical_predicted_label = self.hierarchical_class_names[predicted.item()]
+        if hierarchical_predicted_label == "Paintings":
+            painting_train_dataset = ImageFolder(root='../Image Data/Paintings/training', transform=transform)
+            painting_class_names = painting_train_dataset.classes
+            painting_model = CustomResNet(len(painting_class_names))  
+            painting_model.load_state_dict(torch.load('models/Painting.pth'))
+            painting_model.eval()
+            painting_output = painting_model(image)
+            _, painting_predicted = torch.max(painting_output, 1)
+            painting_predicted_class = painting_class_names[painting_predicted.item()]
+            return painting_predicted_class
+        elif hierarchical_predicted_label == "Monuments":
+            monuments_train_dataset = ImageFolder(root='../Image Data/Monuments/train', transform=transform)
+            monuments_class_names = monuments_train_dataset.classes
+            monuments_model = CustomResNet(len(monuments_class_names))  
+            monuments_model.load_state_dict(torch.load('models/Monuments.pth'))
+            monuments_model.eval()
+            monuments_output = monuments_model(image)
+            _, monuments_predicted = torch.max(monuments_output, 1)
+            monuments_predicted_class = monuments_class_names[monuments_predicted.item()]
+            return monuments_predicted_class
+        else:
+            dance_train_dataset = ImageFolder(root='../Image Data/Dance/train', transform=transform)
+            dance_class_names = dance_train_dataset.classes
+            dance_model = CustomResNet(len(dance_class_names))  
+            dance_model.load_state_dict(torch.load('models/Dance.pth'))
+            dance_model.eval()
+            dance_output = dance_model(image)
+            _, dance_predicted = torch.max(dance_output, 1)
+            dance_predicted_class = dance_class_names[dance_predicted.item()]
+            return dance_predicted_class
+
+            '''
+
 predicted_values = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'image7', 'image8', 'image9', 'image10']
 actual_values = ['image1', 'image3', 'image5', 'image7', 'image9']
-evaluation = ImageEvaluation(predicted_values, actual_values)
-evaluation.plot()
+
+
+
+evaluation = ImageEvaluation()
+evaluation.plot('Painting')
