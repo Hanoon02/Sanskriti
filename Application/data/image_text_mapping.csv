@@ -1,6 +1,6 @@
 Class,Label,Cluster,Key_Words
-Paintings,Warli,0,"['art', 'tribal', 'maharashtra', 'painting', 'traditional', 'folk style', 'rural themes', 'murals', 'cultural heritage']"
-Paintings,Warli,1,"['art', 'tribal', 'maharashtra', 'painting', 'traditional', 'folk style', 'rural themes', 'murals', 'cultural heritage']"
+Paintings,Warli,0,"['art', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'tribal', 'maharashtra', 'painting', 'traditional', 'folk style', 'rural themes', 'murals', 'cultural heritage']"
+Paintings,Warli,1,"['art', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'warli', 'tribal', 'maharashtra', 'painting', 'traditional', 'folk style', 'rural themes', 'murals', 'cultural heritage']"
 Paintings,Kangra,0,"['fort', 'himachal pradesh', 'kangra valley', 'history', 'architecture', 'ancient fort', 'earthquake ruins', 'strategic battles', 'maharaja sansar chand']"
 Paintings,Kangra,1,"['fort', 'himachal pradesh', 'kangra valley', 'history', 'architecture', 'ancient fort', 'earthquake ruins', 'strategic battles', 'maharaja sansar chand']"
 Paintings,Kangra,2,"['fort', 'himachal pradesh', 'kangra valley', 'history', 'architecture', 'ancient fort', 'earthquake ruins', 'strategic battles', 'maharaja sansar chand']"

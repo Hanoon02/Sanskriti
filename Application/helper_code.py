@@ -24,10 +24,8 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.stem import WordNetLemmatizer
 import string
-import statistics
 import os
 import random
-
 
 class HierarchicalResNet(nn.Module):
     def __init__(self, num_classes):
@@ -233,13 +231,18 @@ class TextToImage:
         corpus_str.append(key_terms_str)
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(corpus_str)
-        similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])
+        similarities = cosine_similarity(tfidf_matrix[-1], tfidf_matrix[:-1])
         top_indices = similarities.argsort(axis=None)[-top_n:][::-1]
         top_labels = [self.df.iloc[idx]['Label'] for idx in top_indices]
-        # print("APPLE", top_labels)
-        most_common_label = statistics.mode(top_labels)
-        most_common_class = self.df[self.df['Label'] == most_common_label]['Class'].iloc[0]
-        return most_common_class, most_common_label
+        label_scores = {}
+        for label, score in zip(top_labels, similarities):
+            if label not in label_scores:
+                label_scores[label] = 0
+            label_scores[label] += score
+        # print("APPEL", similarities)
+        most_similar_label = max(label_scores, key=label_scores.get)
+        most_similar_class = self.df[self.df['Label'] == most_similar_label]['Class'].iloc[0]
+        return most_similar_class, most_similar_label
         
     def fetch_img(self, pred_class, pred_label):
         base_dir = ''
