@@ -26,6 +26,12 @@ from nltk.stem import WordNetLemmatizer
 import string
 import os
 import random
+import os
+from transformers import T5Tokenizer, T5ForConditionalGeneration
+from sentence_transformers import SentenceTransformer, util
+from transformers import MarianMTModel, MarianTokenizer
+import torch  
+
 
 class HierarchicalResNet(nn.Module):
     def __init__(self, num_classes):
@@ -253,3 +259,56 @@ class TextToImage:
         image_files = [os.path.join(base_dir, f) for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f))]
         random_image_paths = random.sample(image_files, min(3, len(image_files)))
         return random_image_paths
+    
+
+class Translation:
+    def __init__(self):
+        self.tokenizer = T5Tokenizer.from_pretrained('t5-large')
+        self.model = T5ForConditionalGeneration.from_pretrained('t5-large')
+        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        self.translator_hindi = MarianMTModel.from_pretrained("Helsinki-NLP/opus-mt-en-hi")
+        self.tokenizer_hindi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-hi")
+        self.translator_marathi = MarianMTModel.from_pretrained("Helsinki-NLP/opus-mt-en-mr")
+        self.tokenizer_marathi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-mr")
+        self.translator_urdu = MarianMTModel.from_pretrained("Helsinki-NLP/opus-mt-en-ur")
+        self.tokenizer_urdu = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-ur")
+
+    def answer_question_t5(self, question, context):
+        input_text = f"explain in detail: {question} context: {context}"
+        inputs = self.tokenizer.encode(input_text, return_tensors='pt', max_length=512, truncation=True)
+        outputs = self.model.generate(inputs, max_length=200, num_beams=4, early_stopping=True)
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    def translate(self, text, src_lang, tgt_lang):
+        if src_lang == 'en' and tgt_lang == 'hi':
+            model = self.translator_hindi
+            tokenizer = self.tokenizer_hindi
+        elif src_lang == 'en' and tgt_lang == 'mr':
+            model = self.translator_marathi
+            tokenizer = self.tokenizer_marathi
+        elif src_lang == 'en' and tgt_lang == 'ur':
+            model = self.translator_urdu
+            tokenizer = self.tokenizer_urdu
+        else:
+            raise ValueError("Translation from {} to {} not supported".format(src_lang, tgt_lang))
+        inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
+        outputs = model.generate(**inputs)
+        translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        return translated_text
+
+    def model_translate(self, input):
+        context_file_path = 'data/context.txt'
+        with open(context_file_path, 'r', encoding='utf-8') as file:
+            context = file.read()
+        context_sentences = context.split('. ')
+        question_embedding = self.embedder.encode(input, convert_to_tensor=True)
+        sentence_embeddings = self.embedder.encode(context_sentences, convert_to_tensor=True)
+        cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
+        most_relevant_sentence_index = torch.argmax(cosine_scores).item()
+        most_relevant_sentence = context_sentences[most_relevant_sentence_index]
+        answer = self.answer_question_t5(input, most_relevant_sentence)
+        print("Answer:", answer)
+        print("Hindi:", self.translate(answer, 'en', 'hi'))
+        print("Marathi:", self.translate(answer, 'en', 'mr'))
+        print("Urdu:", self.translate(answer, 'en', 'ur'))
+
