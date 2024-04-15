@@ -210,7 +210,7 @@ class Chatbot:
 
 class TextToImage:
     def __init__(self):
-        self.df = pd.read_csv('data/image_text_mapping.csv')
+        self.df = pd.read_csv('data/Unique_image_text_mapping.csv')
 
     def get_key_terms(self, query):
         key_terms = self.process_query(query)
@@ -245,6 +245,7 @@ class TextToImage:
             if label not in label_scores:
                 label_scores[label] = 0
             label_scores[label] += score
+        print("APPLE", top_labels)
         # print("APPEL", similarities)
         most_similar_label = max(label_scores, key=label_scores.get)
         most_similar_class = self.df[self.df['Label'] == most_similar_label]['Class'].iloc[0]
