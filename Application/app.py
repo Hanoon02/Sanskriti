@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import os
 from time import time
-from helper_code import ImageInputData, Chatbot, TextToImage
+from helper_code import ImageInputData, Chatbot, TextToImage, Translation
 from shutil import copyfile
 import requests
 
@@ -25,6 +25,8 @@ def index():
 @app.route('/predict', methods=['POST'])
 def predict():
     input_data = request.form['input_data']
+    translate  = Translation()
+    translate_data = translate.model_translate(input_data)
     img_class = None
     img_label = None
     search_image_paths = []

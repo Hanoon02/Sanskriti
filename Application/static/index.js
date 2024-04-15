@@ -27,7 +27,7 @@ document.getElementById('queryForm').addEventListener('submit', function(event) 
     formData.append('input_data', inputData);
     formData.append('language', selectedLanguage); 
     if (ImgUploadType === 'Link') {
-        var imageLink = document.getElementById('imageLink').value;
+        var imageLink =  document.getElementById('imageLink').value;
         fetch('/download-image', {
             method: 'POST',
             headers: {
@@ -50,7 +50,10 @@ document.getElementById('queryForm').addEventListener('submit', function(event) 
                     .catch(error => console.error('Error loading image:', error));
             }
         })
-        .catch(error => console.error('Error downloading image:', error));
+        .catch(error => {
+            console.error('Error downloading image:', error);
+            sendFormData(formData);
+        });
     } else {
         var imageInput = document.getElementById('image_input');
         if (imageInput) {
