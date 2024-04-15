@@ -25,9 +25,9 @@ def get_image_features(img_path):
         print(f"Error processing image {img_path}: {e}")
         return None
 
-DIRECTORY_PATH = '../Image Data/Image_clustering_CSV/Paintings'
+DIRECTORY_PATH = '../Image Data/Image_clustering_CSV/Montuments'
 output_csv_path = '../Application/data/Unique_image_text_mapping.csv'
-Class='Paintings'
+Class='Monuments'
 
 
 
