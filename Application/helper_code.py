@@ -263,8 +263,7 @@ class TextToImage:
 
 class Translation:
     def __init__(self):
-        self.tokenizer = T5Tokenizer.from_pretrained('t5-large')
-        self.model = T5ForConditionalGeneration.from_pretrained('t5-large')
+        self.text_input = TextInput()
         self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
         self.translator_hindi = MarianMTModel.from_pretrained("Helsinki-NLP/opus-mt-en-hi")
         self.tokenizer_hindi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-hi")
@@ -272,12 +271,6 @@ class Translation:
         self.tokenizer_marathi = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-mr")
         self.translator_urdu = MarianMTModel.from_pretrained("Helsinki-NLP/opus-mt-en-ur")
         self.tokenizer_urdu = MarianTokenizer.from_pretrained("Helsinki-NLP/opus-mt-en-ur")
-
-    def answer_question_t5(self, question, context):
-        input_text = f"explain in detail: {question} context: {context}"
-        inputs = self.tokenizer.encode(input_text, return_tensors='pt', max_length=512, truncation=True)
-        outputs = self.model.generate(inputs, max_length=200, num_beams=4, early_stopping=True)
-        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
     
     def translate(self, text, src_lang, tgt_lang):
         if src_lang == 'en' and tgt_lang == 'hi':
@@ -306,9 +299,40 @@ class Translation:
         cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
         most_relevant_sentence_index = torch.argmax(cosine_scores).item()
         most_relevant_sentence = context_sentences[most_relevant_sentence_index]
-        answer = self.answer_question_t5(input, most_relevant_sentence)
+        answer = self.text_input.answer_question_t5(input, most_relevant_sentence)  # Using TextInput function
         print("Answer:", answer)
         print("Hindi:", self.translate(answer, 'en', 'hi'))
         print("Marathi:", self.translate(answer, 'en', 'mr'))
         print("Urdu:", self.translate(answer, 'en', 'ur'))
 
+
+class TextInput:
+    def __init__(self):
+        self.tokenizer = T5Tokenizer.from_pretrained('t5-large')
+        self.model = T5ForConditionalGeneration.from_pretrained('t5-large')
+        self.embedder = SentenceTransformer('all-MiniLM-L6-v2')
+
+    def answer_question_t5(self, question, context):
+        input_text = f"explain in detail: {question} context: {context}"
+        inputs = self.tokenizer.encode(input_text, return_tensors='pt', max_length=512, truncation=True)
+        outputs = self.model.generate(inputs, max_length=200, num_beams=4, early_stopping=True)
+        return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    def models(self, input):
+        context_file_path = 'context.txt'
+        with open(context_file_path, 'r', encoding='utf-8') as file:
+            context = file.read()
+
+        context_sentences = context.split('. ')
+        question_embedding = self.embedder.encode(input, convert_to_tensor=True)
+
+        sentence_embeddings = self.embedder.encode(context_sentences, convert_to_tensor=True)
+        cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
+        most_relevant_sentence_index = torch.argmax(cosine_scores).item()  
+        most_relevant_sentence = context_sentences[most_relevant_sentence_index]
+
+        try:
+            answer = self.answer_question_t5(input, most_relevant_sentence)
+            print("Answer:", answer)
+        except Exception as e:
+            print("Error handling the input:", str(e))
