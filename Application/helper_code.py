@@ -259,7 +259,6 @@ class TextToImage:
         image_files = [os.path.join(base_dir, f) for f in os.listdir(base_dir) if os.path.isfile(os.path.join(base_dir, f))]
         random_image_paths = random.sample(image_files, min(3, len(image_files)))
         return random_image_paths
-    
 
 class Translation:
     def __init__(self):
@@ -319,7 +318,7 @@ class TextInput:
         return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
     
     def models(self, input):
-        context_file_path = 'context.txt'
+        context_file_path = 'data/context.txt'
         with open(context_file_path, 'r', encoding='utf-8') as file:
             context = file.read()
 
