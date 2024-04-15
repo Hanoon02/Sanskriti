@@ -68,6 +68,7 @@ def predict():
     fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename) if image_path else None
     return render_template('result.html', question=input_data, output='', image_path=fetch_path, language=language, image_class=output_image, similar_images=similar_image_paths, pred_class = img_class, pred_label = img_label, search_images = search_image_paths)
 
+#HIFHAIHFIASHFIASHDFIAHDBSFBADHVBIADSYVKB
 
 @app.route('/clean_image')
 def clean_image():
