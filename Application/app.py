@@ -91,6 +91,10 @@ def clean_image():
 def settings():
     return render_template('settings.html')
 
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
+
 @app.route('/download-image', methods=['POST'])
 def download_image():
     data = request.get_json()
