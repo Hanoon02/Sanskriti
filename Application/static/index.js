@@ -1,5 +1,4 @@
 let ImgUploadType = 'Image'; // Default value
-
 function changeUploadType(type) {
     const imageUploadField = document.getElementById('imageUploadField');
     if (type === 'Image') {
