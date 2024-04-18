@@ -189,25 +189,6 @@ class BertModelText:
     def compute(self):
         return self.answer_question(self.input, self.content)
 
-class Chatbot:
-    def __init__(self):
-        nltk.download('punkt')
-        nltk.download('stopwords')
-        self.stop_words = set(stopwords.words('english'))
-        self.image_keywords = ['image', 'images', 'photo', 'images', 'picture','pictures' ,'photograph', 'photos'] 
-
-    def preprocess_text(self, text):
-        tokens = word_tokenize(text.lower())
-        tokens = [token for token in tokens if token.isalnum() and token not in self.stop_words]
-        return tokens
-
-    def contains_image_keywords(self, text):
-        tokens = self.preprocess_text(text)
-        for token in tokens:
-            if any(re.search(r'\b{}\b'.format(keyword), token) for keyword in self.image_keywords):
-                return True
-        return False
-
 class TextToImage:
     def __init__(self):
         self.df = pd.read_csv('data/Unique_image_text_mapping.csv')
@@ -245,7 +226,7 @@ class TextToImage:
             if label not in label_scores:
                 label_scores[label] = 0
             label_scores[label] += score
-        print("APPLE", top_labels)
+        # print("APPLE", top_labels)
         # print("APPEL", similarities)
         most_similar_label = max(label_scores, key=label_scores.get)
         most_similar_class = self.df[self.df['Label'] == most_similar_label]['Class'].iloc[0]
@@ -289,7 +270,7 @@ class Translation:
         translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
         return translated_text
 
-    def model_translate(self, input):
+    def model_translate(self, input, language):
         context_file_path = 'data/context.txt'
         with open(context_file_path, 'r', encoding='utf-8') as file:
             context = file.read()
@@ -299,11 +280,13 @@ class Translation:
         cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
         most_relevant_sentence_index = torch.argmax(cosine_scores).item()
         most_relevant_sentence = context_sentences[most_relevant_sentence_index]
-        answer = self.text_input.answer_question_t5(input, most_relevant_sentence)  # Using TextInput function
-        print("Answer:", answer)
-        print("Hindi:", self.translate(answer, 'en', 'hi'))
-        print("Marathi:", self.translate(answer, 'en', 'mr'))
-        print("Urdu:", self.translate(answer, 'en', 'ur'))
+        answer = self.text_input.answer_question_t5(input, most_relevant_sentence)
+        if language=='hindi':
+            return self.translate(answer, 'en', 'hi')
+        elif language=='marathi':
+            return self.translate(answer, 'en', 'mr')
+        else:
+            return self.translate(answer, 'en', 'ur')
 
 
 class TextInput:
@@ -333,6 +316,6 @@ class TextInput:
 
         try:
             answer = self.answer_question_t5(input, most_relevant_sentence)
-            print("Answer:", answer)
+            return answer
         except Exception as e:
             print("Error handling the input:", str(e))
