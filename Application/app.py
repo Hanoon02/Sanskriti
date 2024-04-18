@@ -1,15 +1,13 @@
 from flask import Flask, render_template, request, jsonify
 import os
 from time import time
-from helper_code import ImageInputData, Chatbot, TextToImage, Translation, TextInput
+from helper_code import ImageInputData, TextToImage, Translation, TextInput
 from shutil import copyfile
 import requests
 
-chatbot = Chatbot()
-
 app = Flask(__name__)
 
-extra_dirs = ['templates']
+extra_dirs = ["templates"]
 extra_files = extra_dirs[:]
 for extra_dir in extra_dirs:
     for dirname, _, filenames in os.walk(extra_dir):
@@ -18,42 +16,69 @@ for extra_dir in extra_dirs:
             if os.path.isfile(filename):
                 extra_files.append(filename)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+
+@app.route("/predict", methods=["POST"])
 def predict():
-    input_data = request.form['input_data']
-    translate  = Translation()
-    translate_data = translate.model_translate(input_data)
-    textInput = TextInput()
-    textInputData = textInput.models(input_data)
-    
+    start_time = time()
+    input_data = request.form["input_data"]
+    output_type = request.form["output_type"]
     img_class = None
     img_label = None
     search_image_paths = []
-    if chatbot.contains_image_keywords(input_data):
+    checkpoint_time = time() - start_time
+    timeCheckPoints = [round(checkpoint_time, 3)]
+    textInputData = ""
+    if output_type == "Text":
+        textInput = TextInput()
+        textInputData = textInput.models(input_data)
+        checkpoint_time = time() - start_time
+        timeCheckPoints.append(round(checkpoint_time, 3))
+        timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
+        print("*" * 100)
+        print(f"Time taken to Fetch Text Query Answer: {timeDiff:.3f} seconds")
+        print("*" * 100)
+    if output_type == "Image":
         textToImage = TextToImage()
         img_class, img_label = textToImage.find_most_relevant_label(input_data)
         paths = textToImage.fetch_img(img_class, img_label)
         for path in paths:
             filename = f"{int(time())}_{os.path.basename(path)}"
-            output_image_path = os.path.join('static', 'image_outputs', filename)
+            output_image_path = os.path.join("static", "image_outputs", filename)
             copyfile(path, output_image_path)
-            search_image_paths.append(os.path.join('image_outputs', filename))
-    language = request.form.get('language', 'english')
+            search_image_paths.append(os.path.join("image_outputs", filename))
+        checkpoint_time = time() - start_time
+        timeCheckPoints.append(round(checkpoint_time, 3))
+        timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
+        print("*" * 100)
+        print(f"Time taken to Fetch Image Query Answer: {timeDiff:.3f} seconds")
+        print("*" * 100)
+    language = request.form.get("language", "english")
+    if language != "english":
+        translate = Translation()
+        translate_data = translate.model_translate(input_data, language)
+        print(translate_data)
+        checkpoint_time = time() - start_time
+        timeCheckPoints.append(round(checkpoint_time, 3))
+        timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
+        print("*" * 100)
+        print(f"Time taken to Translate: {timeDiff:.3f} seconds")
+        print("*" * 100)
     try:
-        image_file = request.files['image_input']
+        image_file = request.files["image_input"]
     except:
         image_file = None
-    if image_file is None:  
+    if image_file is None:
         image_path = None
         output_image = ""
         similar_image_paths = []
     else:
-        unique_filename = f"{int(time())}.jpg" 
-        image_path = os.path.join(app.config['SAVE_FOLDER'], unique_filename)
+        unique_filename = f"{int(time())}.jpg"
+        image_path = os.path.join(app.config["SAVE_FOLDER"], unique_filename)
         image_file.save(image_path)
         imgData = ImageInputData()
         output_image = imgData.get_class(image_path)
@@ -61,56 +86,87 @@ def predict():
         similar_image_paths = []
         for similar_image_path in similar_images:
             filename = f"{int(time())}_{os.path.basename(similar_image_path)}"
-            output_image_path = os.path.join('static', 'image_outputs', filename)
+            output_image_path = os.path.join("static", "image_outputs", filename)
             copyfile(similar_image_path, output_image_path)
-            similar_image_paths.append(os.path.join('image_outputs', filename))
-    
-    fetch_path = os.path.join(app.config['FETCH_FOLDER'], unique_filename) if image_path else None
-    return render_template('result.html', question=input_data, output='', image_path=fetch_path, language=language, image_class=output_image, similar_images=similar_image_paths, pred_class = img_class, pred_label = img_label, search_images = search_image_paths)
+            similar_image_paths.append(os.path.join("image_outputs", filename))
 
-#HIFHAIHFIASHFIASHDFIAHDBSFBADHVBIADSYVKB
+    fetch_path = (
+        os.path.join(app.config["FETCH_FOLDER"], unique_filename)
+        if image_path
+        else None
+    )
+    checkpoint_time = time() - start_time
+    print("*" * 100)
+    print(f"Total time taken: {checkpoint_time:.3f} seconds")
+    print("*" * 100)
+    return render_template(
+        "result.html",
+        question=input_data,
+        output=textInputData,
+        image_path=fetch_path,
+        language=language,
+        image_class=output_image,
+        similar_images=similar_image_paths,
+        pred_class=img_class,
+        pred_label=img_label,
+        search_images=search_image_paths,
+    )
 
-@app.route('/clean_image')
+
+@app.route("/clean_image")
 def clean_image():
     try:
-        upload_folder = app.config['SAVE_FOLDER']
+        upload_folder = app.config["SAVE_FOLDER"]
         for filename in os.listdir(upload_folder):
             file_path = os.path.join(upload_folder, filename)
             if os.path.isfile(file_path):
                 os.remove(file_path)
-        upload_folder = 'static/image_outputs'
+        upload_folder = "static/image_outputs"
         for filename in os.listdir(upload_folder):
             file_path = os.path.join(upload_folder, filename)
             if os.path.isfile(file_path):
                 os.remove(file_path)
-        return 'All images cleaned successfully!'
+        return "All images cleaned successfully!"
     except Exception as e:
-        return f'Error cleaning images: {str(e)}'
-    
-@app.route('/settings')
-def settings():
-    return render_template('settings.html')
+        return f"Error cleaning images: {str(e)}"
 
-@app.route('/download-image', methods=['POST'])
+
+@app.route("/settings")
+def settings():
+    return render_template("settings.html")
+
+
+@app.route("/dashboard")
+def dashboard():
+    return render_template("dashboard.html")
+
+
+@app.route("/download-image", methods=["POST"])
 def download_image():
     data = request.get_json()
-    image_url = data.get('imageUrl')
+    image_url = data.get("imageUrl")
     if not image_url:
-        return jsonify({'error': 'Image URL not provided'}), 400
+        return jsonify({"error": "Image URL not provided"}), 400
     try:
         response = requests.get(image_url)
         if response.status_code != 200:
-            return jsonify({'error': 'Failed to download image'}), 500
-        download_dir = 'static/downloads'
+            return jsonify({"error": "Failed to download image"}), 500
+        download_dir = "static/downloads"
         if not os.path.exists(download_dir):
             os.makedirs(download_dir)
-        image_path = os.path.join(download_dir, 'downloaded_image.jpg')
-        with open(image_path, 'wb') as f:
+        image_path = os.path.join(download_dir, "downloaded_image.jpg")
+        with open(image_path, "wb") as f:
             f.write(response.content)
-        return jsonify({'message': 'Image downloaded successfully', 'imagePath': image_path}), 200
+        return (
+            jsonify(
+                {"message": "Image downloaded successfully", "imagePath": image_path}
+            ),
+            200,
+        )
     except Exception as e:
-        return jsonify({'error': f'Error downloading image: {str(e)}'}), 500
+        return jsonify({"error": f"Error downloading image: {str(e)}"}), 500
 
-app.config['SAVE_FOLDER'] = 'static/uploads'
-app.config['FETCH_FOLDER'] = 'uploads'
+
+app.config["SAVE_FOLDER"] = "static/uploads"
+app.config["FETCH_FOLDER"] = "uploads"
 app.run(debug=True, extra_files=extra_files)

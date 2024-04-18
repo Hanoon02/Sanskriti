@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sanskriti</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .rozha-one-regular {
+            font-family: "Rozha One", serif;
+            font-weight: 400;
+            font-style: normal;
+            color: #FCE1B9;
+        }
+        .playball-regular-2 {
+            font-family: "Playball", cursive;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center h-screen bg-[url('../static/chatbotbg.png')] bg-contain bg-center w-screen">
+    <div class='absolute w-full flex'>
+        <div class='w-1/4'>
+            <div class="relative">
+                <a href="/" class="absolute inset-0">
+                    <img class="h-[180px] w-[180px]" src="../static/black_temple.svg" alt="Temple">
+                </a>
+            </div>
+        </div>
+        <div class='w-1/2 flex justify-around pt-8 gap-8'>
+            <a id='textOutput' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
+                Text Output
+            </a>
+            <a id='imageOutput' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
+                Image Output
+            </a>
+            <a id='hybrid' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
+                Hybrid
+            </a>
+        </div>
+        <div class='w-1/4'>
+        </div>
+    </div>
+    <div class='h-full w-full grid content-end'>
+        <div class="flex justify-center w-full">
+            <div class="w-1/2">
+                <div id="a" class='pb-5'>
+                </div>
+                <form id="queryForm" enctype="multipart/form-data">
+                    <div class="mb-12 py-3 flex justify-between w-full text-[25px] bg-[#16140C] text-[#FCE1B9] border-4 border-[#48553D] rounded-full px-4 playball-regular-2">
+                        <div id="uploadField" class='w-2/3'>
+                            <input style="outline: none;" placeholder='Write your query...' id="input_data" name="input_data" class="w-full text-[25px] bg-[#16140C] text-[#FCE1B9]"></input>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div id="submit_button">
+                                <div class="cursor-pointer">
+                                    <img class="h-[28px] w-[28px]" src="../static/text.svg" alt="Text">
+                                </div>
+                            </div>
+                            <div id="uploadTextButton">
+                                <div class="cursor-pointer">
+                                    <img class="h-[28px] w-[28px]" src="../static/text.svg" alt="Text">
+                                </div>
+                            </div>
+                            <div id="uploadImageButton">
+                                <div class="cursor-pointer">
+                                    <img class="h-[30px] w-[30px]" src="../static/cam.svg" alt="Cam">
+                                </div>
+                            </div>
+                            <div id="uploadLinkButton">
+                                <div class="cursor-pointer">
+                                    <img class="h-[30px] w-[30px]" src="../static/link.svg" alt="Link">
+                                </div>
+                            </div>
+                            <select style="outline: none;" id="language" name="language" class="text-[15px] bg-black border border-black rounded-md shadow-sm">
+                                <option value="english" selected>EN</option>
+                                <option value="hindi">HI</option>
+                                <option value="marathi">MA</option>
+                                <option value="urdu">UR</option>
+                            </select> 
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</body>
+</html>

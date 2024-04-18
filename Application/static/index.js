@@ -1,13 +1,16 @@
-let ImgUploadType = 'Image'; // Default value
-
+let UploadType = 'Text'; 
+let OutputType = 'Text';
 function changeUploadType(type) {
-    const imageUploadField = document.getElementById('imageUploadField');
+    const uploadField = document.getElementById('uploadField');
     if (type === 'Image') {
-        imageUploadField.innerHTML = '<input type="file" id="image_input" name="image_input" accept="image/*" class="block">';
+        uploadField.innerHTML = '<input style="outline: none;" type="file" id="image_input" name="image_input" accept="image/*" class="block text-[20px]"></input>';
     } else if (type === 'Link') {
-        imageUploadField.innerHTML = '<input type="text" id="imageLink" name="imageLink" placeholder="Enter image link" class="block w-full border border-black rounded-md shadow-sm py-2 px-2">';
+        uploadField.innerHTML = '<input style="outline: none;" type="text" id="imageLink" name="imageLink" placeholder="Provide image link" class="w-full rounded-md shadow-sm px-2 bg-black"></input>';
     }
-    ImgUploadType = type; 
+    else if (type === 'Text') {
+        uploadField.innerHTML = '<input style="outline: none;" placeholder="Write your query..." id="input_data" name="input_data" class="w-full text-[25px] bg-[#16140C] text-[#FCE1B9]"></input>';
+    }
+    UploadType = type; 
 }
 
 document.getElementById('uploadImageButton').addEventListener('click', function() {
@@ -18,15 +21,35 @@ document.getElementById('uploadLinkButton').addEventListener('click', function()
     changeUploadType('Link');
 });
 
-document.getElementById('queryForm').addEventListener('submit', function(event) {
+document.getElementById('uploadTextButton').addEventListener('click', function() {
+    changeUploadType('Text');
+});
+
+document.getElementById('textOutput').addEventListener('click', function() {
+    OutputType = 'Text';
+});
+
+document.getElementById('imageOutput').addEventListener('click', function() {
+    OutputType = 'Image';
+});
+
+document.getElementById('hybrid').addEventListener('click', function() {
+    OutputType = 'Hybrid';
+});
+
+document.getElementById('submit_button').addEventListener('click', function(event) {
     event.preventDefault();
-    var inputData = document.getElementById('input_data').value;
+    var inputData = ''
+    if(UploadType === 'Text'){
+        inputData = document.getElementById('input_data').value;
+    }
     var languageSelect = document.getElementById('language');
     var selectedLanguage = languageSelect.options[languageSelect.selectedIndex].value;
     var formData = new FormData();
     formData.append('input_data', inputData);
     formData.append('language', selectedLanguage); 
-    if (ImgUploadType === 'Link') {
+    formData.append('output_type', OutputType)
+    if (UploadType === 'Link') {
         var imageLink =  document.getElementById('imageLink').value;
         fetch('/download-image', {
             method: 'POST',
@@ -76,13 +99,15 @@ function sendFormData(formData) {
         resultDiv.classList.add('mt-4');
         resultDiv.innerHTML = result;
         var resultsContainer = document.getElementById('a');
-        resultsContainer.appendChild(resultDiv);
-        document.getElementById('input_data').value = '';
+        resultsContainer.innerHTML = resultDiv.innerHTML;
+        text_input = document.getElementById('input_data')
+        if(text_input) text_input.value = '';
         var imageInput = document.getElementById('image_input');
         if (imageInput) {
             imageInput.value = '';
         }
-        document.getElementById('imageLink').value = '';
+        img_link = document.getElementById('imageLink')
+        if(img_link) img_link.value = ''
     })
     .catch(error => console.error('Error:', error));
 }
