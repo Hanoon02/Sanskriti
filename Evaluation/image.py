@@ -98,8 +98,12 @@ class ImageInputData:
 
             '''
 
-predicted_values = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'image7', 'image8', 'image9', 'image10']
-actual_values = ['image1', 'image3', 'image5', 'image7', 'image9']
+# predicted_values = ['image1', 'image2', 'image3', 'image4', 'image5', 'image6', 'image7', 'image8', 'image9', 'image10']
+# actual_values = ['image1', 'image3', 'image5', 'image7', 'image9']
+
+
+# Code to get random 20 image paths from the dance folder of different classes
+
 
 
 
