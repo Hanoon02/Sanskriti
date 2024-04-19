@@ -89,6 +89,10 @@ document.getElementById('submit_button').addEventListener('click', function(even
 });
 
 function sendFormData(formData) {
+    var resultsContainer = document.getElementById('a');
+    resultsContainer.innerHTML = `
+        <p>Loading Result.....</p>
+    `;
     fetch('/predict', {
         method: 'POST',
         body: formData
