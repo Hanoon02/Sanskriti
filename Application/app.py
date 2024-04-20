@@ -38,7 +38,7 @@ def predict():
     textInputData = ""
     output_image = ""
     similar_image_paths = []
-    if output_type == "Text" and input_type == "Text":
+    if (output_type == "Text" or output_type == "Hybrid") and input_type == "Text":
         textInput = TextInput()
         textInputData = textInput.models(input_data)
         checkpoint_time = time() - start_time
@@ -49,7 +49,7 @@ def predict():
             f"Time taken to Fetch Text Query for Text Input Answer: {timeDiff:.3f} seconds"
         )
         print("*" * 100)
-    if output_type == "Image" and input_type == "Image":
+    if (output_type == "Image" or output_type == "Hybrid") and input_type == "Image":
         try:
             image_file = request.files["image_input"]
         except:
@@ -79,7 +79,7 @@ def predict():
             f"Time taken to Fetch Image Query on Image Input Answer: {timeDiff:.3f} seconds"
         )
         print("*" * 100)
-    if output_type == "Image" and input_type == "Text":
+    if (output_type == "Image" or output_type == "Hybrid") and input_type == "Text":
         textToImage = TextToImage()
         img_class, img_label = textToImage.find_most_relevant_label(input_data)
         paths = textToImage.fetch_img(img_class, img_label)
@@ -100,8 +100,8 @@ def predict():
     if output_type == "Text":
         if language != "english":
             translate = Translation()
-            translate_data = translate.model_translate(input_data, language)
-            print(translate_data)
+            translate_data = translate.model_translate(textInputData, language)
+            textInputData = translate_data
             checkpoint_time = time() - start_time
             timeCheckPoints.append(round(checkpoint_time, 3))
             timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
