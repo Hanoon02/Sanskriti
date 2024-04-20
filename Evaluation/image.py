@@ -167,7 +167,7 @@ def select_random_images(csv_path, classes, num_samples=20):
 # Define the path to your CSV file and the classes you're interested in
 csv_path = 'data/Unique_image_text_mapping.csv'
 # classes = ['Monuments', 'Dance', 'Paintings']
-classes = ['Monuments']
+classes = ['Dance']
 
 # Get the selected images
 random_images_by_class = select_random_images(csv_path, classes)
@@ -246,4 +246,4 @@ for actual, predicted in zip(actual_values, predicted_values):
     print(f'Actual: {actual}, Predicted: {predicted}')
     
 evaluation = ImageEvaluation(predicted_values, actual_values)
-evaluation.plot(title="Monuments")
+evaluation.plot(title="Dance")
