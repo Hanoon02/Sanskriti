@@ -7,32 +7,38 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-black flex justify-center items-center h-screen">
-    <div class="bg-white p-4 rounded-lg shadow-md max-w-xl w-full border border-gray-500">
-        <div class="mb-4 flex gap-2">
-            <h2 class="text-lg font-semibold mb-2">Language:</h2>
+    <div class="backdrop-blur-xl p-4 rounded-lg shadow-2xl max-w-xl w-full backdrop-saturate-100">
+        {% if language != 'english' %}
+        <div class="flex gap-2">
+            <h2 class="text-lg font-semibold">Language:</h2>
             <p class="text-lg">{{ language }}</p>
         </div>
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Question:</h2>
-            <p class="text-lg">{{ question }}</p>
-        </div>
+        {% endif %}
+        {% if question != '' %}
+            <div class="">
+                <h2 class="text-lg font-semibold">Question:</h2>
+                <p class="text-lg">{{ question }}</p>
+            </div>
+        {% endif %}
         {% if image_path %}
-        <div class="mb-4">
+        <div class="">
             <h2 class="text-lg font-semibold mb-2">Uploaded Image:</h2>
             <div>
-                <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" class="mt-4">
+                <img src="{{ url_for('static', filename=image_path) }}" alt="Uploaded Image" class="mt-4 h-[120px] w-[120px]">
             </div>
         </div>
         {% endif %}
-        <div class="mb-4">
-            <h2 class="text-lg font-semibold mb-2">Answer:</h2>
-            <p class="text-lg">{{ output }}</p>
+        <div class="">
+            {% if question != '' %}
+                <h2 class="text-lg font-semibold">Answer:</h2>
+                <p class="text-lg">{{ output }}</p>
+            {% endif %}
             {% if pred_class %}
-                <pclass="text-lg"> You are looking for a {{pred_class}}, which is {{pred_label}} </p>
-                <div class="flex justify-center items-center gap-4">
+                <p class="text-lg"> You are looking for a {{pred_class}}, which is {{pred_label}} </p>
+                <div class="flex gap-4">
                     {% for search_image in search_images %}
                         <div>
-                            <img src="{{ url_for('static', filename=search_image) }}" alt="Search Image" class="mt-4">
+                            <img src="{{ url_for('static', filename=search_image) }}" alt="Search Image" class="mt-4 h-[120px] w-[120px]">
                         </div>
                     {% endfor %}
                 </div>
@@ -44,15 +50,24 @@
         {% if similar_images %}
         <div class="mb-4">
             <h2 class="text-lg font-semibold mb-2">Similar Images:</h2>
-            <div class="flex justify-center items-center gap-4">
+            <div class="flex gap-4">
                 {% for similar_image in similar_images %}
                     <div>
-                        <img src="{{ url_for('static', filename=similar_image) }}" alt="Similar Image" class="mt-4">
+                        <img src="{{ url_for('static', filename=similar_image) }}" alt="Similar Image" class="mt-4 h-[120px] w-[120px]">
                     </div>
                 {% endfor %}
             </div>
         </div>
         {% endif %}
+        <div>
+            <form id="feedbackForm" enctype="multipart/form-data">
+                <h2 class="text-lg font-semibold my-2">Feedback</h2>
+                <div class='flex gap-2'>
+                    <input class="pl-2 w-full text-[18px] bg-[#16140C] text-[#FCE1B9]" style="outline: none;" placeholder='Give your feedback' class=''></input>
+                    <button type='submit' class="px-4 py-1 rounded-full text-[18px] bg-[#16140C] text-[#FCE1B9]" >Submit</button>
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 </html>

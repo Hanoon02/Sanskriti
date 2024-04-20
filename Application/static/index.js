@@ -90,6 +90,7 @@ document.getElementById('submit_button').addEventListener('click', function(even
     formData.append('input_data', inputData);
     formData.append('language', selectedLanguage); 
     formData.append('output_type', OutputType)
+    formData.append('input_type', UploadType)
     if (UploadType === 'Link') {
         var imageLink =  document.getElementById('imageLink').value;
         fetch('/download-image', {
@@ -133,7 +134,7 @@ function sendFormData(formData) {
     var resultsContainer = document.getElementById('a');
     resultsContainer.innerHTML = `
         <div >
-            <img class="h-[180px] w-[180px] mt-5" src="../static/loading.svg" alt="Load"></img>
+            <img class="h-[100px] w-[100px] mt-5" src="../static/loading.svg" alt="Load"></img>
         </div>
     `;
     fetch('/predict', {
