@@ -159,3 +159,16 @@ function sendFormData(formData) {
     })
     .catch(error => console.error('Error:', error));
 }
+
+document.getElementById('submit_feedback').addEventListener('click', function(event) {
+    event.preventDefault();
+    var feedback = document.getElementById('feedback').value;
+    fetch('/feedback', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ feedback: feedback })
+    })
+    document.getElementById('feedback').value = ''
+});

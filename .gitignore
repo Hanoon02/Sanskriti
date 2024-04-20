@@ -4,5 +4,5 @@ Application/.DS_Store
 Application/__pycache__
 __MACOSX
 sans
-Sentiment
+Bert_base_uncased.pth
 .DS_Store

@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, jsonify
 import os
 from time import time
-from helper_code import ImageInputData, TextToImage, Translation, TextInput
+from helper_code import ImageInputData, TextToImage, Translation, TextInput, Feedback
 from shutil import copyfile
 import requests
+import csv
 
 app = Flask(__name__)
 
@@ -183,6 +184,22 @@ def download_image():
         )
     except Exception as e:
         return jsonify({"error": f"Error downloading image: {str(e)}"}), 500
+
+
+@app.route("/feedback", methods=["POST"])
+def feedback():
+    data = request.get_json()
+    feedback_text = data.get("feedback")
+    feedback = Feedback()
+    score = feedback.get_score(feedback_text)
+    with open("feedback.csv", "a", newline="") as csvfile:
+        fieldnames = ["Text", "Score"]
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        if csvfile.tell() == 0:
+            writer.writeheader()
+        feedback_text_quoted = f"{feedback_text}"
+        writer.writerow({"Text": feedback_text_quoted, "Score": score})
+    return jsonify({"score": score})
 
 
 app.config["SAVE_FOLDER"] = "static/uploads"

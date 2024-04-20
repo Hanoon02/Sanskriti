@@ -10,7 +10,7 @@ def download_from_drive(file_id, output_dir):
         zip_ref.extractall(output_dir)
     os.remove(output_file)
 
-file_ids = ['1vxYmx9JAplUJ17cKxq3sqPExAh56Fj5q', '1Xrkv6nYSJBAZsgoEwJ44amnf5u9aSG-H']
+file_ids = ['1vxYmx9JAplUJ17cKxq3sqPExAh56Fj5q', '14-mdcNsYb8Kqk_E4aFFZDRExXj16qJMz']
 folder_id = '1obzwntuvYR9zzZ4sBXeaCs5aekEzSlzb'
 output_dir = os.getcwd()
 for file_id in file_ids:
