@@ -1,5 +1,6 @@
 let UploadType = 'Text'; 
 let OutputType = 'Text';
+
 function changeUploadType(type) {
     const uploadField = document.getElementById('uploadField');
     if (type === 'Image') {
@@ -11,6 +12,46 @@ function changeUploadType(type) {
         uploadField.innerHTML = '<input style="outline: none;" placeholder="Write your query..." id="input_data" name="input_data" class="w-full text-[25px] bg-[#16140C] text-[#FCE1B9]"></input>';
     }
     UploadType = type; 
+}
+
+function changeOutputType(type) {
+    const image = document.getElementById('imageOutput');
+    const text = document.getElementById('textOutput');
+    const hybrid = document.getElementById('hybrid');
+    if (type === 'Text') {
+        text.innerHTML = `<div class='text-[25px] bg-[#000000] text-[#FCE1B9] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Text Output
+                            </div>`
+        image.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Image Output
+                            </div>`
+        hybrid.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Hybrid
+                            </div>`
+
+    } else if (type === 'Image') {
+        text.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Text Output
+                            </div>`
+        image.innerHTML = `<div class='text-[25px] bg-[#000000] text-[#FCE1B9] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Image Output
+                            </div>`
+        hybrid.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Hybrid
+                            </div>`
+    }
+    else if (type === 'Hybrid') {
+        text.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Text Output
+                            </div>`
+        image.innerHTML = `<div class='text-[25px] bg-[#FCE1B9] text-[#000000] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Image Output
+                            </div>`
+        hybrid.innerHTML = `<div class='text-[25px] bg-[#000000] text-[#FCE1B9] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                            Hybrid
+                            </div>`
+    }
+    OutputType = type; 
 }
 
 document.getElementById('uploadImageButton').addEventListener('click', function() {
@@ -26,15 +67,15 @@ document.getElementById('uploadTextButton').addEventListener('click', function()
 });
 
 document.getElementById('textOutput').addEventListener('click', function() {
-    OutputType = 'Text';
+    changeOutputType('Text');
 });
 
 document.getElementById('imageOutput').addEventListener('click', function() {
-    OutputType = 'Image';
+    changeOutputType('Image');
 });
 
 document.getElementById('hybrid').addEventListener('click', function() {
-    OutputType = 'Hybrid';
+    changeOutputType('Hybrid');
 });
 
 document.getElementById('submit_button').addEventListener('click', function(event) {
@@ -91,7 +132,9 @@ document.getElementById('submit_button').addEventListener('click', function(even
 function sendFormData(formData) {
     var resultsContainer = document.getElementById('a');
     resultsContainer.innerHTML = `
-        <p>Loading Result.....</p>
+        <div >
+            <img class="h-[180px] w-[180px] mt-5" src="../static/loading.svg" alt="Load"></img>
+        </div>
     `;
     fetch('/predict', {
         method: 'POST',

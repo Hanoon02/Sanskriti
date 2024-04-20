@@ -19,30 +19,36 @@
         }
     </style>
 </head>
-<body class="flex flex-col items-center h-screen bg-[url('../static/chatbotbg.png')] bg-contain bg-center w-screen">
-    <div class='absolute w-full flex'>
+<body class="flex flex-col h-screen bg-[url('../static/bg.png')] bg-contain bg-center w-screen">
+    <div class='h-1/4 w-full flex'>
         <div class='w-1/4'>
-            <div class="relative">
-                <a href="/" class="absolute inset-0">
-                    <img class="h-[180px] w-[180px]" src="../static/black_temple.svg" alt="Temple">
+            <div class="">
+                <a href="/" class="">
+                    <img class="h-[180px] w-[180px] mt-5" src="../static/Logo.svg" alt="Temple"></img>
                 </a>
             </div>
         </div>
         <div class='w-1/2 flex justify-around pt-8 gap-8'>
-            <a id='textOutput' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
-                Text Output
-            </a>
-            <a id='imageOutput' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
-                Image Output
-            </a>
-            <a id='hybrid' class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2' href='#'>
-                Hybrid
-            </a>
+            <div id='textOutput' class='cursor-pointer'>
+                <div class='text-[25px] bg-[#000000] text-[#FCE1B9] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                    Text Output
+                </div>
+            </div>
+            <div id='imageOutput' class='cursor-pointer'>
+                <div class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                    Image Output
+                </div>
+            </div>
+            <div id='hybrid' class='cursor-pointer'>
+                <div class='text-[25px] bg-[#FCE1B9] text-[#48553D] border-4 border-[#48553D] rounded-full px-6 playball-regular-2'>
+                    Hybrid
+                </div>
+            </div>
         </div>
         <div class='w-1/4'>
         </div>
     </div>
-    <div class='h-full w-full grid content-end'>
+    <div class='h-3/4 grid content-end w-full'>
         <div class="flex justify-center w-full">
             <div class="w-1/2">
                 <div id="a" class='pb-5'>
