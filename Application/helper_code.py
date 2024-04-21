@@ -467,10 +467,10 @@ class TexttInput:
         pass
 
     def fetch_groq_response(self, user_query):
-        with open("Misc//context.txt", "r", encoding='utf-8') as context_file:
+        with open("../Misc/context.txt", "r", encoding='utf-8') as context_file:
             context = context_file.read()
 
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+        client = Groq(api_key="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")
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": context},
