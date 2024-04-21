@@ -279,68 +279,35 @@ class TextToImage:
         return random_image_paths
 
 
+from transformers import AutoModelForSeq2SeqLM, AutoTokenizer
+
 class Translation:
-    def __init__(self):
-        self.text_input = TextInput()
-        self.embedder = SentenceTransformer("all-MiniLM-L6-v2")
-        self.translator_hindi = MarianMTModel.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-hi"
-        )
-        self.tokenizer_hindi = MarianTokenizer.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-hi"
-        )
-        self.translator_marathi = MarianMTModel.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-mr"
-        )
-        self.tokenizer_marathi = MarianTokenizer.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-mr"
-        )
-        self.translator_urdu = MarianMTModel.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-ur"
-        )
-        self.tokenizer_urdu = MarianTokenizer.from_pretrained(
-            "Helsinki-NLP/opus-mt-en-ur"
-        )
+    def __init__(self, model_name):
+        self.model_name = model_name
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
-    def translate(self, text, src_lang, tgt_lang):
-        if src_lang == "en" and tgt_lang == "hi":
-            model = self.translator_hindi
-            tokenizer = self.tokenizer_hindi
-        elif src_lang == "en" and tgt_lang == "mr":
-            model = self.translator_marathi
-            tokenizer = self.tokenizer_marathi
-        elif src_lang == "en" and tgt_lang == "ur":
-            model = self.translator_urdu
-            tokenizer = self.tokenizer_urdu
+    def translate_text(self, text, src_lang, tgt_lang):
+        language_codes = {
+            "english": "en",
+            "hindi": "hi",
+            "marathi": "mr",
+            "urdu": "ur",
+            "bengali": "bn"
+        }
+        
+        tgt_lang_code = language_codes.get(tgt_lang.lower(), "en") 
+        
+        if hasattr(self.tokenizer, 'src_lang'):  
+            self.tokenizer.src_lang = src_lang
+        encoded = self.tokenizer(text, return_tensors="pt")
+        if hasattr(self.tokenizer, 'get_lang_id'):  
+            bos_token_id = self.tokenizer.get_lang_id(tgt_lang_code)
+            generated_tokens = self.model.generate(**encoded, forced_bos_token_id=bos_token_id)
         else:
-            raise ValueError(
-                "Translation from {} to {} not supported".format(src_lang, tgt_lang)
-            )
-        inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
-        outputs = model.generate(**inputs)
-        translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+            generated_tokens = self.model.generate(**encoded)
+        translated_text = self.tokenizer.batch_decode(generated_tokens, skip_special_tokens=True)[0]
         return translated_text
-
-    def model_translate(self, input, language):
-        context_file_path = "data/context.txt"
-        with open(context_file_path, "r", encoding="utf-8") as file:
-            context = file.read()
-        context_sentences = context.split(". ")
-        question_embedding = self.embedder.encode(input, convert_to_tensor=True)
-        sentence_embeddings = self.embedder.encode(
-            context_sentences, convert_to_tensor=True
-        )
-        cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
-        most_relevant_sentence_index = torch.argmax(cosine_scores).item()
-        most_relevant_sentence = context_sentences[most_relevant_sentence_index]
-        answer = self.text_input.answer_question_t5(input, most_relevant_sentence)
-        if language == "hindi":
-            return self.translate(answer, "en", "hi")
-        elif language == "marathi":
-            return self.translate(answer, "en", "mr")
-        else:
-            return self.translate(answer, "en", "ur")
-
 
 class TextInput:
     def __init__(self):
@@ -378,8 +345,6 @@ class TextInput:
             return answer
         except Exception as e:
             print("Error handling the input:", str(e))
-
-
 class EmotionModel1(nn.Module):
     def __init__(self, num_labels):
         super().__init__()
@@ -461,16 +426,16 @@ class Feedback:
         return emotion_mapping[self.predict_emotions(text)]
 
 from groq import Groq
+translation_model = Translation("saved_models/m2m100_418M")
 
 class TexttInput:
     def __init__(self):
         pass
-
     def fetch_groq_response(self, user_query):
-        with open("../Misc/context.txt", "r", encoding='utf-8') as context_file:
+        with open("Misc/context.txt", "r") as context_file:
             context = context_file.read()
 
-        client = Groq(api_key="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")
+        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": context},
@@ -478,5 +443,11 @@ class TexttInput:
             ],
             model="gemma-7b-it",
         )
-
         return chat_completion.choices[0].message.content
+
+    def process_input(self, user_query, output_type, language):
+        if output_type == "Text":
+            if language != "english":
+                translate_data = translation_model.translate_text(user_query, "en", language)
+                user_query = translate_data
+        return user_query
