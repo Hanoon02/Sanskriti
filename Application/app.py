@@ -99,9 +99,9 @@ def predict():
     language = request.form.get("language", "english")
     if output_type == "Text":
         if language != "english":
-            translate = Translation()
-            translate_data = translate.model_translate(textInputData, language)
-            textInputData = translate_data
+            translation_model = Translation("facebook/m2m100_418M")
+            translate = translation_model 
+            textInputData = translate.translate_text(textInputData, "en", language) 
             checkpoint_time = time() - start_time
             timeCheckPoints.append(round(checkpoint_time, 3))
             timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
