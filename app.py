@@ -60,17 +60,21 @@ def predict():
             similar_image_paths = []
         else:
             unique_filename = f"{int(time())}.jpg"
-            image_path = os.path.join(app.config["SAVE_FOLDER"], unique_filename)
+            image_path = os.path.join(
+                app.config["SAVE_FOLDER"], unique_filename)
             image_file.save(image_path)
             imgData = ImageInputData()
             output_image = imgData.get_class(image_path)
-            similar_images = imgData.get_similiar_images(image_path, output_image)
+            similar_images = imgData.get_similiar_images(
+                image_path, output_image)
             similar_image_paths = []
             for similar_image_path in similar_images:
                 filename = f"{int(time())}_{os.path.basename(similar_image_path)}"
-                output_image_path = os.path.join("static", "image_outputs", filename)
+                output_image_path = os.path.join(
+                    "static", "image_outputs", filename)
                 copyfile(similar_image_path, output_image_path)
-                similar_image_paths.append(os.path.join("image_outputs", filename))
+                similar_image_paths.append(
+                    os.path.join("image_outputs", filename))
         checkpoint_time = time() - start_time
         timeCheckPoints.append(round(checkpoint_time, 3))
         timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
@@ -85,7 +89,8 @@ def predict():
         paths = textToImage.fetch_img(img_class, img_label)
         for path in paths:
             filename = f"{int(time())}_{os.path.basename(path)}"
-            output_image_path = os.path.join("static", "image_outputs", filename)
+            output_image_path = os.path.join(
+                "static", "image_outputs", filename)
             copyfile(path, output_image_path)
             search_image_paths.append(os.path.join("image_outputs", filename))
         checkpoint_time = time() - start_time

@@ -37,6 +37,7 @@ from sentence_transformers import SentenceTransformer, util
 from transformers import MarianMTModel, MarianTokenizer
 import torch
 from sklearn.preprocessing import LabelEncoder
+from groq import Groq
 
 
 class HierarchicalResNet(nn.Module):
@@ -89,7 +90,8 @@ class ImageInputData:
         with torch.no_grad():
             output = self.hierarchical_model(image)
         _, predicted = torch.max(output, 1)
-        hierarchical_predicted_label = self.hierarchical_class_names[predicted.item()]
+        hierarchical_predicted_label = self.hierarchical_class_names[predicted.item(
+        )]
         if hierarchical_predicted_label == "Paintings":
             painting_train_dataset = ImageFolder(
                 root="../Image Data/Paintings/training", transform=transform
@@ -100,7 +102,8 @@ class ImageInputData:
             painting_model.eval()
             painting_output = painting_model(image)
             _, painting_predicted = torch.max(painting_output, 1)
-            painting_predicted_class = painting_class_names[painting_predicted.item()]
+            painting_predicted_class = painting_class_names[painting_predicted.item(
+            )]
             return painting_predicted_class
         elif hierarchical_predicted_label == "Monuments":
             monuments_train_dataset = ImageFolder(
@@ -159,7 +162,8 @@ class ImageInputData:
         cluster_label = self.kmeans_model.predict(image_features)
         csv_path = "data/cluster/" + label + ".csv"
         df = pd.read_csv(csv_path)
-        relevant_paths = df[df["Cluster_Label"] == cluster_label[0]]["Image_Path"]
+        relevant_paths = df[df["Cluster_Label"]
+                            == cluster_label[0]]["Image_Path"]
         similarities = {}
         for path in relevant_paths:
             similarity = self.calculate_similarity(image_path, path)
@@ -241,7 +245,8 @@ class TextToImage:
 
     def find_most_relevant_label(self, query, top_n=10):
         key_terms_str = self.get_key_terms(query)
-        self.df["Key_Words"] = self.df["Key_Words"].str.replace("'", "").str.strip()
+        self.df["Key_Words"] = self.df["Key_Words"].str.replace(
+            "'", "").str.strip()
         self.df["Key_Words"] = self.df["Key_Words"].str[1:-1].str.split(", ")
         corpus = self.df["Key_Words"]
         corpus_str = [" ".join(words) for words in corpus]
@@ -275,7 +280,8 @@ class TextToImage:
             for f in os.listdir(base_dir)
             if os.path.isfile(os.path.join(base_dir, f))
         ]
-        random_image_paths = random.sample(image_files, min(3, len(image_files)))
+        random_image_paths = random.sample(
+            image_files, min(3, len(image_files)))
         return random_image_paths
 
 
@@ -314,11 +320,14 @@ class Translation:
             tokenizer = self.tokenizer_urdu
         else:
             raise ValueError(
-                "Translation from {} to {} not supported".format(src_lang, tgt_lang)
+                "Translation from {} to {} not supported".format(
+                    src_lang, tgt_lang)
             )
-        inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
+        inputs = tokenizer(text, return_tensors="pt",
+                           padding=True, truncation=True)
         outputs = model.generate(**inputs)
-        translated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+        translated_text = tokenizer.decode(
+            outputs[0], skip_special_tokens=True)
         return translated_text
 
     def model_translate(self, input, language):
@@ -326,14 +335,17 @@ class Translation:
         with open(context_file_path, "r", encoding="utf-8") as file:
             context = file.read()
         context_sentences = context.split(". ")
-        question_embedding = self.embedder.encode(input, convert_to_tensor=True)
+        question_embedding = self.embedder.encode(
+            input, convert_to_tensor=True)
         sentence_embeddings = self.embedder.encode(
             context_sentences, convert_to_tensor=True
         )
-        cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
+        cosine_scores = util.pytorch_cos_sim(
+            question_embedding, sentence_embeddings)[0]
         most_relevant_sentence_index = torch.argmax(cosine_scores).item()
         most_relevant_sentence = context_sentences[most_relevant_sentence_index]
-        answer = self.text_input.answer_question_t5(input, most_relevant_sentence)
+        answer = self.text_input.answer_question_t5(
+            input, most_relevant_sentence)
         if language == "hindi":
             return self.translate(answer, "en", "hi")
         elif language == "marathi":
@@ -364,12 +376,14 @@ class TextInput:
             context = file.read()
 
         context_sentences = context.split(". ")
-        question_embedding = self.embedder.encode(input, convert_to_tensor=True)
+        question_embedding = self.embedder.encode(
+            input, convert_to_tensor=True)
 
         sentence_embeddings = self.embedder.encode(
             context_sentences, convert_to_tensor=True
         )
-        cosine_scores = util.pytorch_cos_sim(question_embedding, sentence_embeddings)[0]
+        cosine_scores = util.pytorch_cos_sim(
+            question_embedding, sentence_embeddings)[0]
         most_relevant_sentence_index = torch.argmax(cosine_scores).item()
         most_relevant_sentence = context_sentences[most_relevant_sentence_index]
 
@@ -384,7 +398,8 @@ class EmotionModel1(nn.Module):
     def __init__(self, num_labels):
         super().__init__()
         self.bert = AutoModel.from_pretrained("bert-base-uncased")
-        self.emotion_classifier = nn.Linear(self.bert.config.hidden_size, num_labels)
+        self.emotion_classifier = nn.Linear(
+            self.bert.config.hidden_size, num_labels)
         self.flip_classifier = nn.Linear(self.bert.config.hidden_size, 2)
 
     def forward(self, input_ids, attention_mask):
@@ -392,6 +407,7 @@ class EmotionModel1(nn.Module):
         emotion_output = self.emotion_classifier(output.pooler_output)
         flip_output = self.flip_classifier(output.pooler_output)
         return emotion_output, flip_output
+
 
 class Feedback:
     def __init__(self):
@@ -404,7 +420,8 @@ class Feedback:
             "sadness",
             "surprise",
         ]
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         self.num_labels = len(self.emotions)
         self.label_encoder = LabelEncoder()
         self.label_encoder.fit(self.emotions)
@@ -450,24 +467,23 @@ class Feedback:
 
     def get_score(self, text):
         emotion_mapping = {
-            "anger" : 1,
-            "disgust" : 1,
-            "fear" : 1,
-            "joy" : 5,
-            "neutral" : 3,
-            "sadness" : 2,
-            "surprise" : 4,
+            "anger": 1,
+            "disgust": 1,
+            "fear": 1,
+            "joy": 5,
+            "neutral": 3,
+            "sadness": 2,
+            "surprise": 4,
         }
         return emotion_mapping[self.predict_emotions(text)]
 
-from groq import Groq
 
 class TexttInput:
     def __init__(self):
         pass
 
     def fetch_groq_response(self, user_query):
-        with open("Misc//context.txt", "r", encoding='utf-8') as context_file:
+        with open("../Misc/context.txt", "r") as context_file:
             context = context_file.read()
 
         client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
