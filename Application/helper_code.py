@@ -439,10 +439,10 @@ load_dotenv()
 class TexttInput:
     def __init__(self):
         self.context_mapping = {
-            "indian_painting": "Misc/context1.txt",
-            "indian_dance": "Misc/context4.txt",
-            "indian_monuments_1": "Misc/context3.txt",
-            "indian_monuments_2": "Misc/context2.txt"
+            "indian_painting": "../Misc/context1.txt",
+            "indian_dance": "../Misc/context4.txt",
+            "indian_monuments_1": "../Misc/context3.txt",
+            "indian_monuments_2": "../Misc/context2.txt"
         }
     
     def fetch_groq_response(self, user_query):
