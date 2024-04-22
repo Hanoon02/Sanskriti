@@ -426,16 +426,17 @@ class Feedback:
         return emotion_mapping[self.predict_emotions(text)]
 
 from groq import Groq
-translation_model = Translation("saved_models/m2m100_418M")
+from transformers import M2M100ForConditionalGeneration, M2M100Tokenizer
+
+model_name = "facebook/m2m100_418M"
 
 import os
 from groq import Groq
 from dotenv import load_dotenv
 
-# Load environment variables from the .env file at the start of your script
 load_dotenv()
 
-class TextInput:
+class TexttInput:
     def __init__(self):
         self.context_mapping = {
             "indian_painting": "Misc/context1.txt",
@@ -445,19 +446,16 @@ class TextInput:
         }
     
     def fetch_groq_response(self, user_query):
-        # Determine the category of the user query
         category = self.categorize_query(user_query)
         if category is None:
             return "Unable to determine the category for the query."
 
-        # Read the context corresponding to the category
         try:
             with open(self.context_mapping[category], "r", encoding='utf-8') as context_file:
                 context = context_file.read()
         except Exception as e:
             return f"Error reading context file: {str(e)}"
 
-        # Create Groq client using the API key for the specific category
         api_key = os.getenv(f"GROQ_API_KEY_{category}")
         if not api_key:
             return "API key not found for the specified category."
