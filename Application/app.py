@@ -96,6 +96,29 @@ def predict():
             f"Time taken to Fetch Image Query on Text Input Answer: {timeDiff:.3f} seconds"
         )
         print("*" * 100)
+    if (output_type == "Text" or output_type == "Hybrid") and input_type == "Image":
+        try:
+            image_file = request.files["image_input"]
+        except:
+            image_file = None
+        if image_file is None:
+            image_path = None
+            output_image = ""
+            similar_image_paths = []
+        else:
+            unique_filename = f"{int(time())}.jpg"
+            image_path = os.path.join(app.config["SAVE_FOLDER"], unique_filename)
+            image_file.save(image_path)
+            imgData = ImageInputData()
+            output_image = imgData.get_class(image_path)
+        checkpoint_time = time() - start_time
+        timeCheckPoints.append(round(checkpoint_time, 3))
+        timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
+        print("*" * 100)
+        print(
+            f"Time taken to Fetch Image Query on Image Input Answer: {timeDiff:.3f} seconds"
+        )
+        print("*" * 100)
     language = request.form.get("language", "english")
     if output_type == "Text":
         if language != "english":
