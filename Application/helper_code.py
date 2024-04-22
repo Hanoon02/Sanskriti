@@ -428,11 +428,14 @@ class Feedback:
 from groq import Groq
 translation_model = Translation("saved_models/m2m100_418M")
 
-
 import os
 from groq import Groq
+from dotenv import load_dotenv
 
-class TexttInput:
+# Load environment variables from the .env file at the start of your script
+load_dotenv()
+
+class TextInput:
     def __init__(self):
         self.context_mapping = {
             "indian_painting": "Misc/context1.txt",
@@ -448,47 +451,56 @@ class TexttInput:
             return "Unable to determine the category for the query."
 
         # Read the context corresponding to the category
-        with open(self.context_mapping[category], "r", encoding='utf-8') as context_file:
-            context = context_file.read()
+        try:
+            with open(self.context_mapping[category], "r", encoding='utf-8') as context_file:
+                context = context_file.read()
+        except Exception as e:
+            return f"Error reading context file: {str(e)}"
 
-        # Create Groq client and fetch response
-        client = Groq(api_key=os.environ.get(f"GROQ_API_KEY_{category}"))
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": context},
-                {"role": "user", "content": user_query},
-            ],
-            model="gemma-7b-it",
-        )
-        response = chat_completion.choices[0].message.content
+        # Create Groq client using the API key for the specific category
+        api_key = os.getenv(f"GROQ_API_KEY_{category}")
+        if not api_key:
+            return "API key not found for the specified category."
+
+        client = Groq(api_key=api_key)
+        try:
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": context},
+                    {"role": "user", "content": user_query},
+                ],
+                model="gemma-7b-it",
+            )
+            response = chat_completion.choices[0].message.content
+        except Exception as e:
+            return f"Error fetching response from Groq: {str(e)}"
 
         return response
 
     def categorize_query(self, user_query):
-        # Check if the query contains keywords related to Indian painting
         painting_keywords = ["painting", "art", "artist", "Indian painting", "canvas", "colors", "brush", "masterpiece"]
+        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam"]
+        monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace", "fort", "temple"]
+
+        # Check if the query contains keywords related to different categories
         for keyword in painting_keywords:
             if keyword in user_query:
                 return "indian_painting"
-
-        # Check if the query contains keywords related to Indian dance
-        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam"]
         for keyword in dance_keywords:
             if keyword in user_query:
                 return "indian_dance"
-
-        # Check if the query contains keywords related to Indian monuments
-        monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace", "fort", "temple"]
         for keyword in monument_keywords:
             if keyword in user_query:
                 return "indian_monuments_1"
 
-        # If none of the above categories match, return None
         return None
 
     def process_input(self, user_query, output_type, language):
-        if output_type == "Text":
-            if language != "english":
+        if output_type == "Text" and language != "english":
+            try:
                 translate_data = translation_model.translate_text(user_query, "en", language)
                 user_query = translate_data
+            except Exception as e:
+                print(f"Error during translation: {e}")
+                return user_query
         return user_query
