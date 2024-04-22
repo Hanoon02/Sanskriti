@@ -1,17 +1,62 @@
 [
     {
-        "topic": "Indian classical dance",
+        "topic": "Indian Classical Dance",
         "questions": [
-            "What is the difference between Manipuri and Kathak?"
-
+            "What are the main styles of Indian classical dance?",
+            "How does Bharatanatyam differ from Odissi?",
+            "What role does music play in Kathakali performances?",
+            "Describe the costume elements used in Kuchipudi.",
+            "What is the historical origin of Sattriya dance?",
+            "Who was a pioneering figure in modernizing Mohiniyattam?",
+            "What are the typical themes of Manipuri dance dramas?",
+            "How is facial expression utilized in Indian classical dance?",
+            "What are the differences in footwork between Kathak and Bharatanatyam?",
+            "What instruments are typically used in a Kathak performance?"
         ]
     },
     {
         "topic": "Indian Heritage",
         "questions": [
-            "who are UNESCO?"
-
-
+            "What sites in India are listed as UNESCO World Heritage sites?",
+            "Describe the architectural style of the Taj Mahal.",
+            "What are the key features of Mughal architecture?",
+            "How has Indian cuisine been influenced by its history?",
+            "What are some examples of intangible cultural heritage in India?",
+            "Who are prominent figures in the history of Indian independence?",
+            "What role do festivals play in preserving Indian cultural heritage?",
+            "Describe the traditional dress of Rajasthan.",
+            "What is the significance of the River Ganges in Indian heritage?",
+            "How is Indian heritage preserved through language and literature?"
+        ]
+    },
+    {
+        "topic": "Indian Paintings",
+        "questions": [
+            "What are the different styles of Indian miniature paintings?",
+            "Describe the Madhubani painting style.",
+            "Who are key artists in the Bengal School of Art?",
+            "What themes are common in Rajput painting?",
+            "How have modern Indian artists influenced global art?",
+            "What techniques are used in Warli tribal paintings?",
+            "Describe the evolution of Tanjore paintings.",
+            "What is the significance of Mysore painting?",
+            "How do Indian paintings depict mythology?",
+            "What are the main influences on contemporary Indian art?"
+        ]
+    },
+    {
+        "topic": "Indian Art",
+        "questions": [
+            "What are the major schools of sculpture in ancient India?",
+            "How has Indian art been influenced by religious practices?",
+            "What role do colors play in Indian art symbolism?",
+            "Describe the progression of contemporary art in India.",
+            "Who are the most influential modern Indian artists?",
+            "What is unique about Indian folk art?",
+            "How do Indian artists represent festivals and celebrations in their work?",
+            "What are some critical elements of design in Indian pottery?",
+            "Describe the impact of colonialism on Indian art.",
+            "What is the future of digital art in India?"
         ]
     }
 ]
