@@ -439,10 +439,10 @@ load_dotenv()
 class TexttInput:
     def __init__(self):
         self.context_mapping = {
-            "indian_painting": "Misc/context1.txt",
-            "indian_dance": "Misc/context4.txt",
-            "indian_monuments_1": "Misc/context3.txt",
-            "indian_monuments_2": "Misc/context2.txt"
+            "indian_painting": "../Misc/context1.txt",
+            "indian_dance": "../Misc/context4.txt",
+            "indian_monuments_1": "../Misc/context3.txt",
+            "indian_monuments_2": "../Misc/context2.txt"
         }
     
     def fetch_groq_response(self, user_query):
@@ -510,13 +510,13 @@ class TexttInput:
                      "Jantar Mantar", "Mehrangarh Fort", "Tirumala Venkateswara Temple", "Charminar"]
         user_query_lower = user_query.lower()
         for keyword in painting_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_painting"
         for keyword in dance_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_dance"
         for keyword in monument_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_monuments_1"
 
         return None
