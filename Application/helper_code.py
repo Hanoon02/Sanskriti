@@ -169,6 +169,10 @@ class ImageInputData:
         ]
         return top_3_paths
 
+    def get_info(self, label):
+        df = pd.read_csv("data/Unique_image_text_mapping.csv")
+        return df[df["Label"] == label]["Info"].iloc[0]
+
 
 class BertModelText:
     def __init__(self, input):
