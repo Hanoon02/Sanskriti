@@ -29,7 +29,7 @@
         </div>
         {% endif %}
         <div class="">
-            {% if question != '' %}
+            {% if question != '' or output !='' %}
                 <h2 class="text-lg font-semibold">Answer:</h2>
                 <p class="text-lg">{{ output }}</p>
             {% endif %}
