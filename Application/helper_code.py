@@ -478,10 +478,39 @@ class TextInput:
         return response
 
     def categorize_query(self, user_query):
-        painting_keywords = ["painting", "art", "artist", "Indian painting", "canvas", "colors", "brush", "masterpiece"]
-        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam"]
-        monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace", "fort", "temple"]
-
+        painting_keywords = ["painting", "art", "artist", "Indian painting", "canvas", "colors", "brush", "masterpiece",
+                     "Kalamkari", "Thangka", "Assamese Scroll", "Madhubani", "Godna", "Folk Painting", "Pithora",
+                     "Sculpture", "Kangra", "Basholi", "Sohrai", "Khovar", "Chittara", "Kalamezhutgu", "Mural",
+                     "Gond", "Warli", "Block", "Wood Carving", "Textile Painting", "Cloth Painting", "Pattachitra",
+                     "Mud-Work", "Phad Painting", "Tanjore", "Cheriyal Scroll Painting", "Bamboo Work", "Sanjhi",
+                     "Aipan", "Kalighat"]
+        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi",
+                  "manipuri", "kathakali", "sattriya", "mohiniyattam", "bhangra", "garba", "dandiya", "lavani",
+                  "ghoomar", "bhavageete", "bihu", "lavani", "garba", "ghoomar", "jhumar", "chhau", "gotipua",
+                  "odissi", "rass", "giddha", "jhumar", "chhau", "bihu", "bhavageete", "garba", "lambadi",
+                  "lavani", "koli", "dandia", "garba", "naga", "rangoli", "raas", "bhangra", "tamasha",
+                  "koli", "dandia", "lavani", "sambalpuri", "dhankara", "baul", "gotipua", "chhau", "ghoomar",
+                  "bhangra", "kathakali", "ghumura", "kalbelia", "nati", "dappu", "koya", "ghumura", "giddha",
+                  "nati", "dappu", "chhau", "tamasha", "mukha", "khol", "koli", "tamasha", "ghoomar",
+                  "kathakali", "gotipua", "giddha", "tamasha", "kathakali", "garba", "ghoomar", "lavani",
+                  "jhumar", "chhau", "gotipua", "kathakali", "bhangra", "lavani", "ghoomar", "chhau", "ghumura",
+                  "garba", "dandia", "lambadi", "bhavageete", "kathakali", "dandia", "lavani", "garba",
+                  "ghoomar", "ghumura", "nati", "bhavageete", "bhangra", "bhavageete", "lavani", "chhau",
+                  "nati", "lavani", "ghoomar", "kathakali", "bhavageete", "ghumura", "ghoomar", "bhangra",
+                  "lavani", "jhumar", "chhau", "kathakali", "dandia", "tamasha", "ghoomar", "garba", "lavani",
+                  "jhumar", "chhau", "gotipua", "odissi", "manipuri", "kathakali", "bhangra", "bharatanatyam",
+                  "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam",
+                  "bhangra", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali",
+                  "sattriya", "mohiniyattam"]
+        monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace",
+                     "fort", "temple", "Taj Mahal", "Red Fort", "Qutub Minar", "Hampi", "Ajanta Caves", "Ellora Caves",
+                     "Khajuraho Temples", "Fatehpur Sikri", "Konark Sun Temple", "Mysore Palace", "Gateway of India",
+                     "Sanchi Stupa", "Charminar", "Brihadeeswarar Temple", "Meenakshi Temple", "India Gate", "Victoria Memorial",
+                     "Hawa Mahal", "Jaisalmer Fort", "Agra Fort", "City Palace Jaipur", "Lotus Temple", "Humayun's Tomb",
+                     "Elephanta Caves", "Victoria Memorial", "Jama Masjid", "Golden Temple", "Rashtrapati Bhavan", "Srirangam Temple",
+                     "Amer Fort", "Basilica of Bom Jesus", "Birla Mandir", "Golconda Fort", "Salar Jung Museum", "Purana Qila",
+                     "Jantar Mantar", "Mehrangarh Fort", "Tirumala Venkateswara Temple", "Charminar"]
+        
         # Check if the query contains keywords related to different categories
         for keyword in painting_keywords:
             if keyword in user_query:
