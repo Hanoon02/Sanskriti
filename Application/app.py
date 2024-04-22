@@ -139,7 +139,7 @@ def predict():
         )
         print("*" * 100)
     language = request.form.get("language", "english")
-    if output_type == "Text":
+    if output_type == "Text" or output_type == "Hybrid":
         if language != "english":
             translation_model = Translation("facebook/m2m100_418M")
             translate = translation_model
