@@ -169,6 +169,10 @@ class ImageInputData:
         ]
         return top_3_paths
 
+    def get_info(self, label):
+        df = pd.read_csv("data/Unique_image_text_mapping.csv")
+        return df[df["Label"] == label]["Info"].iloc[0]
+
 
 class BertModelText:
     def __init__(self, input):
@@ -482,24 +486,13 @@ class TexttInput:
                      "Gond", "Warli", "Block", "Wood Carving", "Textile Painting", "Cloth Painting", "Pattachitra",
                      "Mud-Work", "Phad Painting", "Tanjore", "Cheriyal Scroll Painting", "Bamboo Work", "Sanjhi",
                      "Aipan", "Kalighat"]
-        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi",
-                  "manipuri", "kathakali", "sattriya", "mohiniyattam", "bhangra", "garba", "dandiya", "lavani",
-                  "ghoomar", "bhavageete", "bihu", "lavani", "garba", "ghoomar", "jhumar", "chhau", "gotipua",
-                  "odissi", "rass", "giddha", "jhumar", "chhau", "bihu", "bhavageete", "garba", "lambadi",
-                  "lavani", "koli", "dandia", "garba", "naga", "rangoli", "raas", "bhangra", "tamasha",
-                  "koli", "dandia", "lavani", "sambalpuri", "dhankara", "baul", "gotipua", "chhau", "ghoomar",
-                  "bhangra", "kathakali", "ghumura", "kalbelia", "nati", "dappu", "koya", "ghumura", "giddha",
-                  "nati", "dappu", "chhau", "tamasha", "mukha", "khol", "koli", "tamasha", "ghoomar",
-                  "kathakali", "gotipua", "giddha", "tamasha", "kathakali", "garba", "ghoomar", "lavani",
-                  "jhumar", "chhau", "gotipua", "kathakali", "bhangra", "lavani", "ghoomar", "chhau", "ghumura",
-                  "garba", "dandia", "lambadi", "bhavageete", "kathakali", "dandia", "lavani", "garba",
-                  "ghoomar", "ghumura", "nati", "bhavageete", "bhangra", "bhavageete", "lavani", "chhau",
-                  "nati", "lavani", "ghoomar", "kathakali", "bhavageete", "ghumura", "ghoomar", "bhangra",
-                  "lavani", "jhumar", "chhau", "kathakali", "dandia", "tamasha", "ghoomar", "garba", "lavani",
-                  "jhumar", "chhau", "gotipua", "odissi", "manipuri", "kathakali", "bhangra", "bharatanatyam",
-                  "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam",
-                  "bhangra", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali",
-                  "sattriya", "mohiniyattam"]
+        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "odissi",
+                        "manipuri", "kathakali", "sattriya", "bhangra", "garba", "dandiya", "lavani",
+                        "ghoomar", "bhavageete", "bihu",  "jhumar", "chhau", 
+                        "rass", "giddha", "lambadi","koli", "dandia", "naga", "rangoli", "raas", "tamasha",
+                        "sambalpuri", "dhankara", "baul", "ghumura", "kalbelia", "nati", "dappu", "koya", 
+                        "nati", "dappu", "mukha", "khol", "gotipua", "nati", "kuchipudi", "mohiniyattam"]
+                        
         monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace",
                      "fort", "temple", "Taj Mahal", "Red Fort", "Qutub Minar", "Hampi", "Ajanta Caves", "Ellora Caves",
                      "Khajuraho Temples", "Fatehpur Sikri", "Konark Sun Temple", "Mysore Palace", "Gateway of India",
@@ -510,13 +503,13 @@ class TexttInput:
                      "Jantar Mantar", "Mehrangarh Fort", "Tirumala Venkateswara Temple", "Charminar"]
         user_query_lower = user_query.lower()
         for keyword in painting_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_painting"
         for keyword in dance_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_dance"
         for keyword in monument_keywords:
-            if keyword in user_query_lower:
+            if keyword.lower() in user_query_lower:
                 return "indian_monuments_1"
 
         return None

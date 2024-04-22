@@ -1,7 +1,14 @@
 from flask import Flask, render_template, request, jsonify
 import os
 from time import time
-from helper_code import ImageInputData, TextToImage, Translation, TextInput, Feedback, TexttInput
+from helper_code import (
+    ImageInputData,
+    TextToImage,
+    Translation,
+    TextInput,
+    Feedback,
+    TexttInput,
+)
 from shutil import copyfile
 import requests
 import csv
@@ -32,6 +39,7 @@ def predict():
     img_class = None
     img_label = None
     image_path = None
+    hybridDone = False
     search_image_paths = []
     checkpoint_time = time() - start_time
     timeCheckPoints = [round(checkpoint_time, 3)]
@@ -39,6 +47,7 @@ def predict():
     output_image = ""
     similar_image_paths = []
     if (output_type == "Text" or output_type == "Hybrid") and input_type == "Text":
+        hybridDone = True
         textInput = TexttInput()
         textInputData = textInput.fetch_groq_response(input_data)
         checkpoint_time = time() - start_time
@@ -49,7 +58,10 @@ def predict():
             f"Time taken to Fetch Text Query for Text Input Answer: {timeDiff:.3f} seconds"
         )
         print("*" * 100)
-    if (output_type == "Image" or output_type == "Hybrid") and input_type == "Image":
+    if (output_type == "Image" or output_type == "Hybrid") and (
+        input_type == "Image" or input_type == "Link"
+    ):
+        hybridDone = True
         try:
             image_file = request.files["image_input"]
         except:
@@ -80,6 +92,7 @@ def predict():
         )
         print("*" * 100)
     if (output_type == "Image" or output_type == "Hybrid") and input_type == "Text":
+        hybridDone = True
         textToImage = TextToImage()
         img_class, img_label = textToImage.find_most_relevant_label(input_data)
         paths = textToImage.fetch_img(img_class, img_label)
@@ -96,12 +109,41 @@ def predict():
             f"Time taken to Fetch Image Query on Text Input Answer: {timeDiff:.3f} seconds"
         )
         print("*" * 100)
+    if (output_type == "Text" or output_type == "Hybrid") and (
+        input_type == "Image" or input_type == "Link"
+    ):
+        try:
+            image_file = request.files["image_input"]
+        except:
+            image_file = None
+        if image_file is None:
+            image_path = None
+            output_image = ""
+            similar_image_paths = []
+        else:
+            if not hybridDone:
+                unique_filename = f"{int(time())}.jpg"
+                print("ASDAD", unique_filename)
+                image_path = os.path.join(app.config["SAVE_FOLDER"], unique_filename)
+                image_file.save(image_path)
+            imgData = ImageInputData()
+            output_image = imgData.get_class(image_path)
+            textInputData = imgData.get_info(output_image)
+            # print(textInputData)
+        checkpoint_time = time() - start_time
+        timeCheckPoints.append(round(checkpoint_time, 3))
+        timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
+        print("*" * 100)
+        print(
+            f"Time taken to Fetch Image Query on Image Input Answer: {timeDiff:.3f} seconds"
+        )
+        print("*" * 100)
     language = request.form.get("language", "english")
-    if output_type == "Text":
+    if output_type == "Text" or output_type == "Hybrid":
         if language != "english":
             translation_model = Translation("facebook/m2m100_418M")
-            translate = translation_model 
-            textInputData = translate.translate_text(textInputData, "en", language) 
+            translate = translation_model
+            textInputData = translate.translate_text(textInputData, "en", language)
             checkpoint_time = time() - start_time
             timeCheckPoints.append(round(checkpoint_time, 3))
             timeDiff = abs(timeCheckPoints[-1] - timeCheckPoints[-2])
