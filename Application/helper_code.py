@@ -510,16 +510,15 @@ class TextInput:
                      "Elephanta Caves", "Victoria Memorial", "Jama Masjid", "Golden Temple", "Rashtrapati Bhavan", "Srirangam Temple",
                      "Amer Fort", "Basilica of Bom Jesus", "Birla Mandir", "Golconda Fort", "Salar Jung Museum", "Purana Qila",
                      "Jantar Mantar", "Mehrangarh Fort", "Tirumala Venkateswara Temple", "Charminar"]
-        
-        # Check if the query contains keywords related to different categories
+        user_query_lower = user_query.lower()
         for keyword in painting_keywords:
-            if keyword in user_query:
+            if keyword in user_query_lower:
                 return "indian_painting"
         for keyword in dance_keywords:
-            if keyword in user_query:
+            if keyword in user_query_lower:
                 return "indian_dance"
         for keyword in monument_keywords:
-            if keyword in user_query:
+            if keyword in user_query_lower:
                 return "indian_monuments_1"
 
         return None
