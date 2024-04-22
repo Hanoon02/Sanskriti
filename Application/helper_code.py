@@ -428,14 +428,31 @@ class Feedback:
 from groq import Groq
 translation_model = Translation("saved_models/m2m100_418M")
 
+
+import os
+from groq import Groq
+
 class TexttInput:
     def __init__(self):
-        pass
+        self.context_mapping = {
+            "indian_painting": "Misc/context1.txt",
+            "indian_dance": "Misc/context4.txt",
+            "indian_monuments_1": "Misc/context3.txt",
+            "indian_monuments_2": "Misc/context2.txt"
+        }
+    
     def fetch_groq_response(self, user_query):
-        with open("Misc/context.txt", "r") as context_file:
+        # Determine the category of the user query
+        category = self.categorize_query(user_query)
+        if category is None:
+            return "Unable to determine the category for the query."
+
+        # Read the context corresponding to the category
+        with open(self.context_mapping[category], "r", encoding='utf-8') as context_file:
             context = context_file.read()
 
-        client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+        # Create Groq client and fetch response
+        client = Groq(api_key=os.environ.get(f"GROQ_API_KEY_{category}"))
         chat_completion = client.chat.completions.create(
             messages=[
                 {"role": "system", "content": context},
@@ -443,7 +460,31 @@ class TexttInput:
             ],
             model="gemma-7b-it",
         )
-        return chat_completion.choices[0].message.content
+        response = chat_completion.choices[0].message.content
+
+        return response
+
+    def categorize_query(self, user_query):
+        # Check if the query contains keywords related to Indian painting
+        painting_keywords = ["painting", "art", "artist", "Indian painting", "canvas", "colors", "brush", "masterpiece"]
+        for keyword in painting_keywords:
+            if keyword in user_query:
+                return "indian_painting"
+
+        # Check if the query contains keywords related to Indian dance
+        dance_keywords = ["dance", "dancer", "dancing", "Indian dance", "bharatanatyam", "kathak", "kuchipudi", "odissi", "manipuri", "kathakali", "sattriya", "mohiniyattam"]
+        for keyword in dance_keywords:
+            if keyword in user_query:
+                return "indian_dance"
+
+        # Check if the query contains keywords related to Indian monuments
+        monument_keywords = ["monument", "architecture", "Indian monument", "historical", "landmark", "ancient", "palace", "fort", "temple"]
+        for keyword in monument_keywords:
+            if keyword in user_query:
+                return "indian_monuments_1"
+
+        # If none of the above categories match, return None
+        return None
 
     def process_input(self, user_query, output_type, language):
         if output_type == "Text":
