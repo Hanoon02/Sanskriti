@@ -37,4 +37,5 @@
 The application will be running on `http://127.0.0.1:5000`.
 
 Verified Python Versions
-1. Python 3.10.6  
+1. Python 3.10.6
+2. Python 3.11.4  
